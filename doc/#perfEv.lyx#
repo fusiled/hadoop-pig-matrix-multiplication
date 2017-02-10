@@ -1,0 +1,1888 @@
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date true
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 3cm
+\topmargin 3cm
+\rightmargin 3cm
+\bottommargin 3cm
+\headheight 1cm
+\headsep 1cm
+\footskip 1cm
+\columnsep 1cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Matrix Multiplication Benchmarking on Hadoop with Pig
+\end_layout
+
+\begin_layout Author
+Davide Azzalini, Matteo M.
+ Fusi
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Subsection
+Purpose
+\end_layout
+
+\begin_layout Standard
+This document is intended to analize the scaling capability of the Hadoop
+ framework using Pig.
+ Matrix multiplication will be employed as benchmark.
+ The document will also describe how to set the environment up.
+\end_layout
+
+\begin_layout Subsection
+Requirements
+\end_layout
+
+\begin_layout Standard
+A minimal knowledge of Unix shell environment is required to understand
+ what the scripts do.
+ The scripts are anyway commented.
+ A knowledge of the RedHat/Fedora systems is recommended but not requested
+ to understand what 
+\emph on
+yum 
+\emph default
+(the package manager of CentOS) command does.
+\end_layout
+
+\begin_layout Section
+Setting the Environment Up
+\end_layout
+
+\begin_layout Subsection
+Architecture
+\end_layout
+
+\begin_layout Standard
+On top of OpenStack we ran a Master and and a variable number of workers.
+ Master was set as namenode.
+ Also yarn and Pig were running on it.
+ Workers were just running datanode related daemons.
+\end_layout
+
+\begin_layout Subsection
+Available Resources
+\end_layout
+
+\begin_layout Standard
+The Hadoop cluster was deployed on 
+\begin_inset CommandInset href
+LatexCommand href
+name "PoliCloud"
+target "http://policloud.polimi.it/"
+
+\end_inset
+
+
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+http://policloud.polimi.it/
+\end_layout
+
+\end_inset
+
+ platform, the cloud structure hosted and managed by the Politecnico di
+ Milano.
+ Policloud is a IaaS built on top of 
+\begin_inset CommandInset href
+LatexCommand href
+name "OpenStack"
+target "https://www.openstack.org/"
+
+\end_inset
+
+
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+https://www.openstack.org/
+\end_layout
+
+\end_inset
+
+.
+ The available resources were the following ones:
+\end_layout
+
+\begin_layout Itemize
+Max number of instances: 8
+\end_layout
+
+\begin_layout Itemize
+Number of virtual CPUs (VCPUs): 16
+\end_layout
+
+\begin_layout Itemize
+Available RAM: 21 GB
+\end_layout
+
+\begin_layout Standard
+We allocated the resources in the following way:
+\end_layout
+
+\begin_layout Description
+Master A single instance with flavour 
+\emph on
+compute.
+\emph default
+large, which means 8 VCPUs and 4GB RAM and a disk 80GB big.
+\end_layout
+
+\begin_layout Description
+Worker Mutliple instances (from 2 to 7), each one was a 
+\emph on
+general.small
+\emph default
+ flavour, which means 1 VCPUs and 2GB RAM and a disk 20 GB big.
+\end_layout
+
+\begin_layout Subsection
+Operating System
+\end_layout
+
+\begin_layout Standard
+Every instance ran CentOS 6 as operating system, made available by PoliCloud.
+ It's important to highlight that, due to a bug (the cause it's still unknown),
+ during the initializiation the instance was not always able to load the
+ key for the ssh access.
+ We solved this issue by trial: we kept launching instances until one loaded
+ the keys correctly, then we replicated that instance several times.
+ The image offered by PoliCloud had also the firewall 
+\emph on
+iptables
+\emph default
+ running by default.
+ This one must be disabled typing the following commands as root:
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "language=bash,extendedchars=true"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+sudo su -
+\end_layout
+
+\begin_layout Plain Layout
+
+/etc/init.d/iptables save
+\end_layout
+
+\begin_layout Plain Layout
+
+/etc/init.d/iptables stop
+\end_layout
+
+\begin_layout Plain Layout
+
+chkconfig iptables off
+\end_layout
+
+\begin_layout Plain Layout
+
+exit
+\end_layout
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+How to disable the 
+\emph on
+iptables 
+\emph default
+firewall
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Installation Script
+\end_layout
+
+\begin_layout Standard
+We used the script created by 
+\begin_inset CommandInset href
+LatexCommand href
+name "sergevs"
+target "https://github.com/sergevs/ansible-cloudera-hadoop"
+
+\end_inset
+
+
+\emph on
+
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+
+\emph on
+https://github.com/sergevs/ansible-cloudera-hadoop
+\end_layout
+
+\end_inset
+
+
+\emph default
+.
+ You can easily clone the linked repository with git.
+ The requirements for every machine are:
+\end_layout
+
+\begin_layout Enumerate
+CentOS6
+\end_layout
+
+\begin_layout Enumerate
+Oracle Java installed
+\end_layout
+
+\begin_layout Enumerate
+Access to the Cloudera 5 yum Repository.
+ You can find the yum reference at the following path:
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset CommandInset href
+LatexCommand href
+target "https://archive.cloudera.com/cdh5/redhat/5/x86_64/cdh/cloudera-cdh5.repo"
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+Just copy the dowloaded file into the 
+\emph on
+/etc/yum.repos.d 
+\emph default
+directory and type 
+\emph on
+sudo yum update 
+\emph default
+as root user.
+\end_layout
+
+\begin_layout Enumerate
+SSH key passwordless authentication must be configured for root account
+ for all target hosts.
+ The default configuration of PoliCloud was ok, but it was needed to add
+ the access key to the known hosts of the root user.
+\end_layout
+
+\begin_layout Enumerate
+SeLinux must be disabled
+\end_layout
+
+\begin_layout Enumerate
+Ansible and unzip on the machine that runs the script.
+ We ran the script on Master node.
+ It is required to set 
+\emph on
+remote_user = root 
+\emph default
+in 
+\emph on
+/etc/ansible/ansible.cfg
+\emph default
+ file.
+ Moreover, logging can be enabled setting the correct flag in the ansible.cfg
+ file.
+\end_layout
+
+\begin_layout Standard
+The 
+\series bold
+Algorithm 2
+\series default
+ can be run on every machine to set points 2,3,4 and 5.
+ The reboot is needed to let the SeLinux deactivation apply :
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "language=bash,numbers=left,breaklines=true"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+#!/bin/bash
+\end_layout
+
+\begin_layout Plain Layout
+
+#enter root environment
+\end_layout
+
+\begin_layout Plain Layout
+
+sudo su -
+\end_layout
+
+\begin_layout Plain Layout
+
+#add misc epel-release
+\end_layout
+
+\begin_layout Plain Layout
+
+yum install epel-release unzip wget -y
+\end_layout
+
+\begin_layout Plain Layout
+
+#download and install cloudera repo reference 
+\end_layout
+
+\begin_layout Plain Layout
+
+wget -nc https://archive.cloudera.com/cdh5/redhat/6/x86_64/cdh/cloudera-cdh5.repo
+\end_layout
+
+\begin_layout Plain Layout
+
+mv -f cloudera-cdh5.repo /etc/yum.repos.d/cloudera-cdh5.repo yum update -y
+\end_layout
+
+\begin_layout Plain Layout
+
+#get Oracle Java and install it 
+\end_layout
+
+\begin_layout Plain Layout
+
+wget -nc --no-cookies --no-check-certificate --header "Cookie: gpw_e24=http%3A%2
+F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" "http://download.o
+racle.com/otn-pub/java/jdk/8u121-b13/e9e7ea248e2c4826b92b3f075a80e441/jdk-8u121-l
+inux-x64.rpm" 
+\end_layout
+
+\begin_layout Plain Layout
+
+yum localinstall jdk-8u121-linux-x64.rpm -y
+\end_layout
+
+\begin_layout Plain Layout
+
+#enable root login with centos user key 
+\end_layout
+
+\begin_layout Plain Layout
+
+/bin/cp -f /home/centos/.ssh/authorized_keys ~/.ssh/authorized_keys
+\end_layout
+
+\begin_layout Plain Layout
+
+#restart ssh deamon
+\end_layout
+
+\begin_layout Plain Layout
+
+service sshd restart
+\end_layout
+
+\begin_layout Plain Layout
+
+#disable selinux 
+\end_layout
+
+\begin_layout Plain Layout
+
+echo "SELINUX=disabled" > /etc/selinux/config 
+\end_layout
+
+\begin_layout Plain Layout
+
+echo "SELINUXTYPE=targeted" >> /etc/selinux/config 
+\end_layout
+
+\begin_layout Plain Layout
+
+#reboot the system
+\end_layout
+
+\begin_layout Plain Layout
+
+reboot
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Environment setup script
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+Ansible must be installed manually.
+ It is in the 
+\emph on
+epel-release 
+\emph default
+repository.
+ This repository was added by the above script, so after you run the script
+ on Master just type 
+\emph on
+sudo yum install ansible -y 
+\emph default
+And set the 
+\emph on
+remote_user 
+\emph default
+flag as explained before.
+\end_layout
+
+\begin_layout Subsection
+Memory Partitions and Volumes
+\end_layout
+
+\begin_layout Standard
+The available CentOS image created just a single partition of 8GB, so the
+ disk associated to an instance was not fully utilized.
+ This amount of memory was obviously not sufficient for our tests, so we
+ needed to add some storage memory to the instances.
+ We employed the volume utility of PoliCloud.
+ It is possible to create virtual disks.
+ The property of these disks is that the memory is persistent: what is saved
+ on a volume 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+persists
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+ until the disk is deleted, but we didn't exploit this feature.
+ We attached a volume of 50GB big to each instance.
+ We also created a swap partition foreach instance exploiting a part of
+ the unoccupied disk it using 
+\emph on
+
+\begin_inset CommandInset href
+LatexCommand href
+name "cfdisk"
+target "https://linux.die.net/man/8/cfdisk"
+
+\end_inset
+
+ 
+\emph default
+(a partition editor for linux).
+ Algorithm 3,4,5 and 6 should perform the needed tasks.
+ Algorithm 3 and 4 must be executed on Master and also on workers.
+ After that perform Algorithm 5 on Master and Algorithm 6 on every worker.
+ Note that algorithms 5 and 6 are intended as a continuation of Algorithm
+ 4.
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "language=bash"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+#!/bin/bash
+\end_layout
+
+\begin_layout Plain Layout
+
+#from PoliCloud dashboard create a volume and associate
+\end_layout
+
+\begin_layout Plain Layout
+
+# it to the instance
+\end_layout
+
+\begin_layout Plain Layout
+
+#enter root environment
+\end_layout
+
+\begin_layout Plain Layout
+
+sudo su -
+\end_layout
+
+\begin_layout Plain Layout
+
+#call cfdisk on the virtual disk of the instance
+\end_layout
+
+\begin_layout Plain Layout
+
+#create a partition that will become the swap (/dev/sda2)
+\end_layout
+
+\begin_layout Plain Layout
+
+#and one partition with the remaining space (/dev/sda3)
+\end_layout
+
+\begin_layout Plain Layout
+
+cfdisk /dev/sda
+\end_layout
+
+\begin_layout Plain Layout
+
+#call cfdisk on the volume
+\end_layout
+
+\begin_layout Plain Layout
+
+#for Master just create one big partition (/dev/sdb1)
+\end_layout
+
+\begin_layout Plain Layout
+
+#for workers create 2 paritions: 
+\end_layout
+
+\begin_layout Plain Layout
+
+# - 1 for yarn 28GB big (/dev/sdb1)
+\end_layout
+
+\begin_layout Plain Layout
+
+# - 1 for hdfs with the remaining space (/dev/sdb2)
+\end_layout
+
+\begin_layout Plain Layout
+
+cfdisk /dev/sdb
+\end_layout
+
+\begin_layout Plain Layout
+
+#reboot to detect partitions
+\end_layout
+
+\begin_layout Plain Layout
+
+reboot
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Memory setup on an instance (Part 1)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+#!bin/bash
+\end_layout
+
+\begin_layout Plain Layout
+
+#!!WARNING!!
+\end_layout
+
+\begin_layout Plain Layout
+
+#!! After the reboot the name of disks may be swapped:
+\end_layout
+
+\begin_layout Plain Layout
+
+#!! /dev/sda may become /dev/sdb and viceversa
+\end_layout
+
+\begin_layout Plain Layout
+
+#!! Always check this fact.
+ If the names are swapped
+\end_layout
+
+\begin_layout Plain Layout
+
+#!! change the below commands where needed
+\end_layout
+
+\begin_layout Plain Layout
+
+#!! Now we assume that /dev/sda and /dev/sdb are the 
+\end_layout
+
+\begin_layout Plain Layout
+
+#!! same as the Algorithm 3, Part1
+\end_layout
+
+\begin_layout Plain Layout
+
+#enter root environment
+\end_layout
+
+\begin_layout Plain Layout
+
+sudo su -
+\end_layout
+
+\begin_layout Plain Layout
+
+#format swap and mount it
+\end_layout
+
+\begin_layout Plain Layout
+
+mkswap /dev/sda2
+\end_layout
+
+\begin_layout Plain Layout
+
+swapon /dev/sda2
+\end_layout
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Memory setup on an instance (Part 2, after the reboot, common part)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+#!/bin/bash
+\end_layout
+
+\begin_layout Plain Layout
+
+#CHECK Algorithm 4 WARNING
+\end_layout
+
+\begin_layout Plain Layout
+
+#format volume and mount it
+\end_layout
+
+\begin_layout Plain Layout
+
+#this partition will be used for hdfs
+\end_layout
+
+\begin_layout Plain Layout
+
+mkfs.ext4 /dev/sdb1
+\end_layout
+
+\begin_layout Plain Layout
+
+#create path
+\end_layout
+
+\begin_layout Plain Layout
+
+mkdir /var/lib/hadoop-hdfs
+\end_layout
+
+\begin_layout Plain Layout
+
+#mount the partition ath the new path
+\end_layout
+
+\begin_layout Plain Layout
+
+mount /dev/sdb1 /var/lib/hadoop-hdfs
+\end_layout
+
+\begin_layout Plain Layout
+
+#do the same for /dev/sda3 and /var/lib/hadoop-yarn
+\end_layout
+
+\begin_layout Plain Layout
+
+mkfs.ext4 /dev/sda3
+\end_layout
+
+\begin_layout Plain Layout
+
+mkdir /var/lib/hadoop-yarn
+\end_layout
+
+\begin_layout Plain Layout
+
+mount /dev/sda3 /var/lib/hadoop-yarn
+\end_layout
+
+\begin_layout Plain Layout
+
+#exit root environment
+\end_layout
+
+\begin_layout Plain Layout
+
+exit
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Memory setup on Master (Part 2, after the reboot)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+#!/bin/bash
+\end_layout
+
+\begin_layout Plain Layout
+
+#CHECK Algorithm 4 WARNING
+\end_layout
+
+\begin_layout Plain Layout
+
+#format volume partitions 
+\end_layout
+
+\begin_layout Plain Layout
+
+mkfs.ext4 /dev/sdb1
+\end_layout
+
+\begin_layout Plain Layout
+
+mffs.ext4 /dev/sdb2
+\end_layout
+
+\begin_layout Plain Layout
+
+#create paths
+\end_layout
+
+\begin_layout Plain Layout
+
+mkdir /var/lib/hadoop-hdfs
+\end_layout
+
+\begin_layout Plain Layout
+
+mkdir /var/lib/hadoop-yarn
+\end_layout
+
+\begin_layout Plain Layout
+
+#mount the partitions
+\end_layout
+
+\begin_layout Plain Layout
+
+mount /dev/sdb1 /var/lib/hadoop-hdfs
+\end_layout
+
+\begin_layout Plain Layout
+
+mount /dev/sdb2 /var/lib/hadoop-yarn
+\end_layout
+
+\begin_layout Plain Layout
+
+#exit root environment
+\end_layout
+
+\begin_layout Plain Layout
+
+exit
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Memory setup on a worker (Part 2, after the reboot)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+Now the instances should be ready to install Hadoop and perform the tests.
+\end_layout
+
+\begin_layout Paragraph
+WARNING ON MOUNTED PARTITIONS
+\end_layout
+
+\begin_layout Standard
+The partitions are mounted, but we didn't altered the 
+\emph on
+/etc/fstab/
+\emph default
+, which is the file that tells the OS which partitions mount at boot time.
+ 
+\bar under
+This means that after every reboot the partitions must be remounted
+\bar default
+.
+\end_layout
+
+\begin_layout Subsection
+Ansible
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset href
+LatexCommand href
+name "Ansible"
+target "https://www.ansible.com/"
+
+\end_inset
+
+
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+https://www.ansible.com/
+\end_layout
+
+\end_inset
+
+ is an open-source automation engine that automates cloud provisioning,
+ configuration management, and application deployment.
+ Once installed on a control node, Ansible, which is an agentless architecture,
+ connects to a managed node through the default OpenSSH connection type.
+ You can define a set of rules that can be executed in a specified order
+ and when some conditions are met.
+ The set of tasks and rules are specified in a playbook.
+ The used script was very easy to use because there is a file called 
+\emph on
+hosts
+\emph default
+ that can be edited.
+ In this file you can specify the hadoop roles of the machines (namenode,
+ datanode) and which software you want to install (hbase, zookeeper, spark...).
+ We installed a simple cluster with Master as namenode and datanode (it
+ had enough computationl power to perform both tasks) and the workers as
+ datanodes.
+ The yarn resource manager was installed on Master.
+ It is required to fix the file 
+\emph on
+group_vars/all 
+\emph default
+that contains some useful variables.
+ The java path it is not correct so you must manually edit it.
+ If you ran the provided script you just have to change the first two uncommente
+d lines into the following ones:
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+java_package: java-1.8.0 
+\end_layout
+
+\begin_layout Plain Layout
+
+java_home: /usr/java/jdk1.8.0_121/ 
+\end_layout
+
+\end_inset
+
+As described in the README of 
+\emph on
+sergevs
+\emph default
+ repository, run the script typing this command from the root directory
+ of the repository:
+\begin_inset listings
+lstparams "language=bash"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+ansible-playbook -i hosts site.yaml
+\end_layout
+
+\end_inset
+
+If the installation is successful, then it's time to install Pig.
+\end_layout
+
+\begin_layout Subsection
+Pig
+\end_layout
+
+\begin_layout Standard
+Apache 
+\begin_inset CommandInset href
+LatexCommand href
+name "Pig"
+target "https://pig.apache.org/"
+
+\end_inset
+
+
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+https://pig.apache.org/
+\end_layout
+
+\end_inset
+
+ is a high-level platform for creating programs that run on Apache Hadoop.
+ The language for this platform is called Pig Latin.
+ Pig can execute its Hadoop jobs in MapReduce, Apache Tez, or Apache Spark.
+ Pig Latin abstracts the programming from the Java MapReduce idiom into
+ a notation which makes MapReduce programming high level, similar to that
+ of SQL for RDBMSs.
+ Pig was not included in the playbook so we installed it manually after
+ the playbook was executed using the Cloudera 5 Repository.
+ Pig is on Cloudera repository, so just type the following command on Master:
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+sudo yum install pig
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Test Execution and Data Collection
+\end_layout
+
+\begin_layout Subsection
+Generation of the Matrices
+\end_layout
+
+\begin_layout Standard
+We used a simple C program to generate a square of matrix of size 
+\emph on
+DIMxDIM
+\emph default
+.
+ The output format of the matrix was foreach line 
+\emph on
+<row 
+\backslash
+t column 
+\backslash
+t value>.
+ 
+\emph default
+The program uses OpenMP to speed up the generation of the matrix.
+ To compile the source type the following command:
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+cc -fopenmp -DDIM=<matrix_side_legnth> genMatParallel.c -o genMatParallel
+\end_layout
+
+\end_inset
+
+The 
+\emph on
+-fopenmp 
+\emph default
+flag enables the parallelism.
+ Anyway if you can't use OpenMp you can compile the program without the
+ specified flag.
+ Remember to change 
+\emph on
+<matrix_side_length> 
+\emph default
+with any integer value.
+ After the compilation run the executable to generate the 
+\emph on
+outMatrix.txt 
+\emph default
+file, which contains the matrix.
+ In our case we set DIM to 500 and then 1000.
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "language=C,tabsize=3"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+#ifndef DIM
+\end_layout
+
+\begin_layout Plain Layout
+
+#define DIM 10
+\end_layout
+
+\begin_layout Plain Layout
+
+#endif
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+#ifndef FILE_PATH
+\end_layout
+
+\begin_layout Plain Layout
+
+#define FILE_PATH "outMatrix.txt"
+\end_layout
+
+\begin_layout Plain Layout
+
+#endif
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+#include <stdio.h>
+\end_layout
+
+\begin_layout Plain Layout
+
+#include <omp.h>
+\end_layout
+
+\begin_layout Plain Layout
+
+#include <time.h>
+\end_layout
+
+\begin_layout Plain Layout
+
+#include <stdlib.h>
+\end_layout
+
+\begin_layout Plain Layout
+
+int main() 
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+       FILE * fp = fopen(FILE_PATH,"w");
+\end_layout
+
+\begin_layout Plain Layout
+
+       srand( (unsigned int) time(NULL));
+\end_layout
+
+\begin_layout Plain Layout
+
+       int i,j;
+\end_layout
+
+\begin_layout Plain Layout
+
+       #pragma omp parallel for collapse(2) private(i,j)
+\end_layout
+
+\begin_layout Plain Layout
+
+       for(i=0; i<DIM; i++)
+\end_layout
+
+\begin_layout Plain Layout
+
+       {
+\end_layout
+
+\begin_layout Plain Layout
+
+			for(j=0; j<DIM; j++)
+\end_layout
+
+\begin_layout Plain Layout
+
+                {
+\end_layout
+
+\begin_layout Plain Layout
+
+                        int random = rand();
+\end_layout
+
+\begin_layout Plain Layout
+
+                        fprintf(fp, "%d
+\backslash
+t%d
+\backslash
+t%d
+\backslash
+n", i,j, random);
+\end_layout
+
+\begin_layout Plain Layout
+
+                }
+\end_layout
+
+\begin_layout Plain Layout
+
+        }
+\end_layout
+
+\begin_layout Plain Layout
+
+    	fclose(fp);
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Matrix generation source
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+The Test Script
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "language=Perl,numbers=left,breaklines=true,extendedchars=true"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SET default_parallel n;
+\end_layout
+
+\begin_layout Plain Layout
+
+matrix1 = LOAD 'mat1' AS (row,col,value);
+\end_layout
+
+\begin_layout Plain Layout
+
+matrix2 = LOAD 'mat1' AS (row,col,value);
+\end_layout
+
+\begin_layout Plain Layout
+
+A = JOIN matrix1 BY col FULL OUTER, matrix2 BY row;
+\end_layout
+
+\begin_layout Plain Layout
+
+B = FOREACH A GENERATE matrix1::row AS m1r, matrix2::col AS m2c, (matrix1::value
+)*(matrix2::value) AS value;
+\end_layout
+
+\begin_layout Plain Layout
+
+C = GROUP B BY (m1r, m2c);
+\end_layout
+
+\begin_layout Plain Layout
+
+multiplied_matrices = FOREACH C GENERATE group.$0 as row, group.$1 as col,
+ SUM(B.value) AS val;
+\end_layout
+
+\begin_layout Plain Layout
+
+store multiplied_matrices into 'matmul_out'; 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+The test script in Pig Latin
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "language=bash,numbers=left,breaklines=true,tabsize=3,extendedchars=true"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+#!/bin/bash
+\end_layout
+
+\begin_layout Plain Layout
+
+#init variables
+\end_layout
+
+\begin_layout Plain Layout
+
+matrices_dir="matrices_dir"
+\end_layout
+
+\begin_layout Plain Layout
+
+HDFS_MATRIX_NAME="mat1"
+\end_layout
+
+\begin_layout Plain Layout
+
+PIG_EXEC="matmul.pig"
+\end_layout
+
+\begin_layout Plain Layout
+
+HDFS_OUT_DIR="matmul_out"
+\end_layout
+
+\begin_layout Plain Layout
+
+output_dir="test_output"
+\end_layout
+
+\begin_layout Plain Layout
+
+all_time_storage="$output_dir/pig_times.txt"
+\end_layout
+
+\begin_layout Plain Layout
+
+time_buf_file="tmp/time_buf"
+\end_layout
+
+\begin_layout Plain Layout
+
+#get the number of workers
+\end_layout
+
+\begin_layout Plain Layout
+
+n_datanodes=`hdfs dfsadmin -report | grep Live | tr -d -c 0-9`
+\end_layout
+
+\begin_layout Plain Layout
+
+#do the test for every matrix in $matrices_dir
+\end_layout
+
+\begin_layout Plain Layout
+
+for matrix in `ls $matrices_dir`
+\end_layout
+
+\begin_layout Plain Layout
+
+do
+\end_layout
+
+\begin_layout Plain Layout
+
+	#do the test 10 times
+\end_layout
+
+\begin_layout Plain Layout
+
+	for iter in `seq 1 10`
+\end_layout
+
+\begin_layout Plain Layout
+
+	do
+\end_layout
+
+\begin_layout Plain Layout
+
+		#PREPARE THE ENVIRONMENT
+\end_layout
+
+\begin_layout Plain Layout
+
+		timestamp=`date -Iseconds`
+\end_layout
+
+\begin_layout Plain Layout
+
+		output_file=$output_dir/$matrix-$timestamp
+\end_layout
+
+\begin_layout Plain Layout
+
+		#copy test matrix ind hdfs
+\end_layout
+
+\begin_layout Plain Layout
+
+		hadoop fs -copyFromLocal -f $matrices_dir/$matrix $HDFS_MATRIX_NAME
+\end_layout
+
+\begin_layout Plain Layout
+
+		#clean old results that could be present in hdfs
+\end_layout
+
+\begin_layout Plain Layout
+
+		hadoop fs -rm -r -f $HDFS_OUT_DIR
+\end_layout
+
+\begin_layout Plain Layout
+
+		#RUN THE TEST
+\end_layout
+
+\begin_layout Plain Layout
+
+		#use unix time command, not the one of bash to estimate pig exec_time
+\end_layout
+
+\begin_layout Plain Layout
+
+		#redirect pig output in $output_file
+\end_layout
+
+\begin_layout Plain Layout
+
+		/usr/bin/time -f %e -o $time_buf_file pig $PIG_EXEC |& tee $output_file
+\end_layout
+
+\begin_layout Plain Layout
+
+		pig_time=$(cat $time_buf_file)
+\end_layout
+
+\begin_layout Plain Layout
+
+		#save exec_time in pig_times.txt
+\end_layout
+
+\begin_layout Plain Layout
+
+		echo "$timestamp,$matrix,$n_datanodes,$pig_time" >> $all_time_storage
+\end_layout
+
+\begin_layout Plain Layout
+
+	done
+\end_layout
+
+\begin_layout Plain Layout
+
+done 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Wrapper of the basic test script
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Log Processing
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "language=bash,numbers=left,breaklines=true,tabsize=3"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+#!/bin/bash
+\end_layout
+
+\begin_layout Plain Layout
+
+DATE_REGEX="2017-[0-1][0-9]-[0-3][0-9]
+\backslash
+s[0-2][0-9]
+\backslash
+:[0-5][0-9]
+\backslash
+:[0-5][0-9]"
+\end_layout
+
+\begin_layout Plain Layout
+
+yarn_log_dir="yarn_logs"
+\end_layout
+
+\begin_layout Plain Layout
+
+pig_log_dir="pig_logs"
+\end_layout
+
+\begin_layout Plain Layout
+
+tmp_file="tmp.txt"
+\end_layout
+
+\begin_layout Plain Layout
+
+log_times="log_times.csv"
+\end_layout
+
+\begin_layout Plain Layout
+
+for pig_log in `ls $pig_log_dir`
+\end_layout
+
+\begin_layout Plain Layout
+
+do
+\end_layout
+
+\begin_layout Plain Layout
+
+	app_id_ar=`awk 'match($0,/[0-9]{13}_[0-9]{4}/){ print substr($0,RSTART,RLENGTH)
+}' ./"$pig_log_dir/$pig_log" | sort | uniq`
+\end_layout
+
+\begin_layout Plain Layout
+
+	for app_id in $app_id_ar
+\end_layout
+
+\begin_layout Plain Layout
+
+	do
+\end_layout
+
+\begin_layout Plain Layout
+
+		for yarn_worker_log in `ls $yarn_log_dir`
+\end_layout
+
+\begin_layout Plain Layout
+
+		do
+\end_layout
+
+\begin_layout Plain Layout
+
+			grep $app_id $yarn_log_dir/$yarn_worker_log > $tmp_file
+\end_layout
+
+\begin_layout Plain Layout
+
+			first_occ=`head $tmp_file -n 1`
+\end_layout
+
+\begin_layout Plain Layout
+
+			first_time=`echo "$first_occ" | grep -o $DATE_REGEX`
+\end_layout
+
+\begin_layout Plain Layout
+
+			first_time_sec=`date --date="$first_time" +%s`
+\end_layout
+
+\begin_layout Plain Layout
+
+			last_time=`tail $tmp_file -n 1 | grep -o $DATE_REGEX`
+\end_layout
+
+\begin_layout Plain Layout
+
+			last_time_sec=`date --date="$last_time" +%s`
+\end_layout
+
+\begin_layout Plain Layout
+
+			exec_time=`expr $last_time_sec - $first_time_sec`
+\end_layout
+
+\begin_layout Plain Layout
+
+			echo "$app_id,$yarn_worker_log,$exec_time" >> $log_times
+\end_layout
+
+\begin_layout Plain Layout
+
+		done
+\end_layout
+
+\begin_layout Plain Layout
+
+	done
+\end_layout
+
+\begin_layout Plain Layout
+
+done
+\end_layout
+
+\begin_layout Plain Layout
+
+rm $tmp_file
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Yarn miner script
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Conclusions
+\end_layout
+
+\end_body
+\end_document
