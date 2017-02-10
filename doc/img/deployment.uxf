@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.2">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>280</x>
+      <y>310</y>
+      <w>280</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>Worker1
+layer=1
+bg=white
+transparency=0</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>580</x>
+      <y>40</y>
+      <w>280</w>
+      <h>260</h>
+    </coordinates>
+    <panel_attributes>Master</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>590</x>
+      <y>70</y>
+      <w>260</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>pig
+bg=blue</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>590</x>
+      <y>120</y>
+      <w>130</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>yarn
+resourcemanager
+bg=cyan</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>290</x>
+      <y>340</y>
+      <w>120</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>yarn
+nodemanager
+bg=green
+layer=2</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>420</x>
+      <y>340</y>
+      <w>120</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>hdfs
+datanode
+bg=yellow
+layer=2</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>730</x>
+      <y>120</y>
+      <w>120</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>hdfs
+namenode
+bg=red</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>730</x>
+      <y>250</y>
+      <w>120</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>hdfs
+datanode
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>590</x>
+      <y>250</y>
+      <w>130</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>yarn
+nodemanager
+bg=green</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>570</x>
+      <y>230</y>
+      <w>310</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>10.0;10.0;290.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>730</x>
+      <y>180</y>
+      <w>120</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>hdfs
+journalnode
+bg=orange</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>590</x>
+      <y>180</y>
+      <w>130</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>mapreduce
+historyserver
+bg=magenta</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>420</x>
+      <y>190</y>
+      <w>180</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>lt=.</panel_attributes>
+    <additional_attributes>10.0;120.0;160.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>290</x>
+      <y>320</y>
+      <w>280</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>transparency=0
+layer=0</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>300</x>
+      <y>330</y>
+      <w>280</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>transparency=0
+layer=0</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

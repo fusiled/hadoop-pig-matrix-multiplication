@@ -124,19 +124,121 @@ This document is intended to analize the scaling capability of the Hadoop
 \end_layout
 
 \begin_layout Subsection
-Requirements
+\begin_inset CommandInset label
+LatexCommand label
+name "subsec:Reference-Links"
+
+\end_inset
+
+Reference Links
 \end_layout
 
-\begin_layout Standard
-A minimal knowledge of Unix shell environment is required to understand
- what the scripts do.
- The scripts are anyway commented.
- A knowledge of the RedHat/Fedora systems is recommended but not requested
- to understand what 
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+Repository
+\begin_inset space ~
+\end_inset
+
+of
+\begin_inset space ~
+\end_inset
+
+the
+\begin_inset space ~
+\end_inset
+
+project 
+\begin_inset CommandInset href
+LatexCommand href
+target "https://github.com/fusiled/hadoop-pig-matrix-multiplication-benchmark"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+Ansible 
+\begin_inset CommandInset href
+LatexCommand href
+target "https://www.ansible.com/"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
 \emph on
-yum 
+ansible-cloudera-hadoop
+\begin_inset space ~
+\end_inset
+
+
 \emph default
-(the package manager of CentOS) command does.
+Repository
+\begin_inset space ~
+\end_inset
+
+by
+\begin_inset space ~
+\end_inset
+
+
+\emph on
+sergevs
+\emph default
+ 
+\begin_inset CommandInset href
+LatexCommand href
+target "https://github.com/sergevs/ansible-cloudera-hadoop"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+Hadoop
+\begin_inset space ~
+\end_inset
+
+Pig 
+\begin_inset CommandInset href
+LatexCommand href
+target "https://pig.apache.org/"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+OpenStack 
+\begin_inset CommandInset href
+LatexCommand href
+target "https://www.openstack.org/"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+PoliCloud 
+\begin_inset CommandInset href
+LatexCommand href
+target "http://policloud.polimi.it/"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
@@ -154,50 +256,14 @@ On top of OpenStack we ran a Master and and a variable number of workers.
  Workers were just running datanode related daemons.
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Subsubsection
 Available Resources
 \end_layout
 
 \begin_layout Standard
-The Hadoop cluster was deployed on 
-\begin_inset CommandInset href
-LatexCommand href
-name "PoliCloud"
-target "http://policloud.polimi.it/"
-
-\end_inset
-
-
-\begin_inset Foot
-status collapsed
-
-\begin_layout Plain Layout
-http://policloud.polimi.it/
-\end_layout
-
-\end_inset
-
- platform, the cloud structure hosted and managed by the Politecnico di
- Milano.
- Policloud is a IaaS built on top of 
-\begin_inset CommandInset href
-LatexCommand href
-name "OpenStack"
-target "https://www.openstack.org/"
-
-\end_inset
-
-
-\begin_inset Foot
-status collapsed
-
-\begin_layout Plain Layout
-https://www.openstack.org/
-\end_layout
-
-\end_inset
-
-.
+The Hadoop cluster was deployed on PoliCloud platform, the cloud structure
+ hosted and managed by the Politecnico di Milano.
+ PoliCloud is a IaaS built on top of OpenStack.
  The available resources were the following ones:
 \end_layout
 
@@ -213,35 +279,81 @@ Number of virtual CPUs (VCPUs): 16
 Available RAM: 21 GB
 \end_layout
 
+\begin_layout Subsection
+Installation
+\end_layout
+
 \begin_layout Standard
-We allocated the resources in the following way:
+This Section describe the installation of the cluster on the PoliCloud Environme
+nt.
+ The entry point of PoliCloud for users is a dashboard reachable by the
+ web.
+ From this dashboard you can easily launch instances.
+ After you've launched instances it is required to SSH the machines to begin
+ the installation of the cluster.
+\end_layout
+
+\begin_layout Subsubsection
+Requirements
+\end_layout
+
+\begin_layout Standard
+A minimal knowledge of Unix shell environment is required to understand
+ what the scripts do.
+ The scripts are anyway commented.
+ A knowledge of the RedHat/Fedora systems is recommended but not requested
+ to understand what 
+\emph on
+yum 
+\emph default
+(the package manager of CentOS) command does.
+\end_layout
+
+\begin_layout Subsubsection
+Run the Instances
+\end_layout
+
+\begin_layout Standard
+To launch an instance, select a flavour an OS image and a SSH public key
+ for the access.
+ Flavours are a sort of predefined 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+virtual hardware configurations
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+ You can select only predefined flavours, but you can use any OS image.
+ Every instance ran CentOS 6 as operating system.
+ The image of CentOS 6 is made avaialbe by the PoliCloud Environment.
+ We allocated the resources in the following way:
 \end_layout
 
 \begin_layout Description
 Master A single instance with flavour 
 \emph on
-compute.
+compute.large
 \emph default
-large, which means 8 VCPUs and 4GB RAM and a disk 80GB big.
+, which means 8 VCPUs and 4GB RAM and a disk 80GB big.
 \end_layout
 
 \begin_layout Description
-Worker Mutliple instances (from 2 to 7), each one was a 
+Worker Multiple instances (from 2 to 7), each one was a 
 \emph on
 general.small
 \emph default
  flavour, which means 1 VCPUs and 2GB RAM and a disk 20 GB big.
 \end_layout
 
-\begin_layout Subsection
-Operating System
-\end_layout
-
 \begin_layout Standard
-Every instance ran CentOS 6 as operating system, made available by PoliCloud.
- It's important to highlight that, due to a bug (the cause it's still unknown),
- during the initializiation the instance was not always able to load the
- key for the ssh access.
+It's important to highlight that, due to a bug, during the initializiation
+ the instance was not always able to load the key for the SSH access.
  We solved this issue by trial: we kept launching instances until one loaded
  the keys correctly, then we replicated that instance several times.
  The image offered by PoliCloud had also the firewall 
@@ -249,7 +361,7 @@ Every instance ran CentOS 6 as operating system, made available by PoliCloud.
 iptables
 \emph default
  running by default.
- This one must be disabled typing the following commands as root:
+ This one must be disabled with Algorithm 1.
 \begin_inset Float algorithm
 wide false
 sideways false
@@ -309,36 +421,27 @@ firewall
 
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Subsubsection
 Installation Script
 \end_layout
 
 \begin_layout Standard
-We used the script created by 
-\begin_inset CommandInset href
-LatexCommand href
-name "sergevs"
-target "https://github.com/sergevs/ansible-cloudera-hadoop"
-
-\end_inset
-
-
+We used the a tool created by 
+\emph on
+sergevs
+\emph default
+ that is based on Ansible (Check the link at Section 
 \emph on
 
-\begin_inset Foot
-status collapsed
-
-\begin_layout Plain Layout
-
-\emph on
-https://github.com/sergevs/ansible-cloudera-hadoop
-\end_layout
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "subsec:Reference-Links"
 
 \end_inset
 
 
 \emph default
-.
+ for further details).
  You can easily clone the linked repository with git.
  The requirements for every machine are:
 \end_layout
@@ -407,12 +510,8 @@ in
 \end_layout
 
 \begin_layout Standard
-The 
-\series bold
-Algorithm 2
-\series default
- can be run on every machine to set points 2,3,4 and 5.
- The reboot is needed to let the SeLinux deactivation apply :
+The Algorithm 2 can be run on every machine to set points 2,3,4 and 5.
+ The reboot is needed to let the SeLinux deactivation apply.
 \begin_inset Float algorithm
 wide false
 sideways false
@@ -553,18 +652,26 @@ epel-release
 \emph default
 repository.
  This repository was added by the above script, so after you run the script
- on Master just type 
-\emph on
-sudo yum install ansible -y 
-\emph default
-And set the 
+ on Master just type the following command:
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+sudo yum install ansible -y
+\end_layout
+
+\end_inset
+
+and set the 
 \emph on
 remote_user 
 \emph default
 flag as explained before.
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Subsubsection
 Memory Partitions and Volumes
 \end_layout
 
@@ -1053,29 +1160,12 @@ This means that after every reboot the partitions must be remounted
 .
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Subsubsection
 Ansible
 \end_layout
 
 \begin_layout Standard
-\begin_inset CommandInset href
-LatexCommand href
-name "Ansible"
-target "https://www.ansible.com/"
-
-\end_inset
-
-
-\begin_inset Foot
-status open
-
-\begin_layout Plain Layout
-https://www.ansible.com/
-\end_layout
-
-\end_inset
-
- is an open-source automation engine that automates cloud provisioning,
+Ansible is an open-source automation engine that automates cloud provisioning,
  configuration management, and application deployment.
  Once installed on a control node, Ansible, which is an agentless architecture,
  connects to a managed node through the default OpenSSH connection type.
@@ -1138,30 +1228,13 @@ ansible-playbook -i hosts site.yaml
 If the installation is successful, then it's time to install Pig.
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Subsubsection
 Pig
 \end_layout
 
 \begin_layout Standard
-Apache 
-\begin_inset CommandInset href
-LatexCommand href
-name "Pig"
-target "https://pig.apache.org/"
-
-\end_inset
-
-
-\begin_inset Foot
-status collapsed
-
-\begin_layout Plain Layout
-https://pig.apache.org/
-\end_layout
-
-\end_inset
-
- is a high-level platform for creating programs that run on Apache Hadoop.
+Apache Pig is a high-level platform for creating programs that run on Apache
+ Hadoop.
  The language for this platform is called Pig Latin.
  Pig can execute its Hadoop jobs in MapReduce, Apache Tez, or Apache Spark.
  Pig Latin abstracts the programming from the Java MapReduce idiom into
@@ -1177,6 +1250,48 @@ status open
 \begin_layout Plain Layout
 
 sudo yum install pig
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+End of the Installation
+\end_layout
+
+\begin_layout Standard
+At the end of the installation we should have an architecture that corresponds
+ to the deployment diagram show in the figure below.
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename img/deployment.png
+	width 10cm
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Deployment Diagram of the cluster
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
 \end_layout
 
 \end_inset
@@ -1215,7 +1330,7 @@ status open
 
 \begin_layout Plain Layout
 
-cc -fopenmp -DDIM=<matrix_side_legnth> genMatParallel.c -o genMatParallel
+cc -fopenmp -DDIM=<matrix_side_length> genMatParallel.c -o genMatParallel
 \end_layout
 
 \end_inset
