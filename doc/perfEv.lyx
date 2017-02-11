@@ -253,7 +253,36 @@ Architecture
 On top of OpenStack we ran a Master and and a variable number of workers.
  Master was set as namenode.
  Also yarn and Pig were running on it.
- Workers were just running datanode related daemons.
+ The Figure 1 shows how the architecture will be at the end of the installation.
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename img/deployment.png
+	width 10cm
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Deployment Diagram of the cluster
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsubsection
@@ -264,7 +293,7 @@ Available Resources
 The Hadoop cluster was deployed on PoliCloud platform, the cloud structure
  hosted and managed by the Politecnico di Milano.
  PoliCloud is a IaaS built on top of OpenStack.
- The available resources were the following ones:
+ The available resources were the following:
 \end_layout
 
 \begin_layout Itemize
@@ -277,6 +306,14 @@ Number of virtual CPUs (VCPUs): 16
 
 \begin_layout Itemize
 Available RAM: 21 GB
+\end_layout
+
+\begin_layout Itemize
+Available persistent storage: 500 GB
+\end_layout
+
+\begin_layout Itemize
+Max number of volumes: 10
 \end_layout
 
 \begin_layout Subsection
@@ -300,7 +337,8 @@ Requirements
 \begin_layout Standard
 A minimal knowledge of Unix shell environment is required to understand
  what the scripts do.
- The scripts are anyway commented.
+ The knwoldege of SSH key management is requested.
+ The scripts are anyway thoroughly commented.
  A knowledge of the RedHat/Fedora systems is recommended but not requested
  to understand what 
 \emph on
@@ -330,6 +368,7 @@ virtual hardware configurations
 
 .
  You can select only predefined flavours, but you can use any OS image.
+ You can also save instance images that can be reused in the future.
  Every instance ran CentOS 6 as operating system.
  The image of CentOS 6 is made avaialbe by the PoliCloud Environment.
  We allocated the resources in the following way:
@@ -583,7 +622,13 @@ yum localinstall jdk-8u121-linux-x64.rpm -y
 
 \begin_layout Plain Layout
 
-#enable root login with centos user key 
+#enable root login with centos user key
+\end_layout
+
+\begin_layout Plain Layout
+
+#this is a simple turnaround: copy the authorized keys of the user centos
+ and make them ok also for root user
 \end_layout
 
 \begin_layout Plain Layout
@@ -681,7 +726,9 @@ The available CentOS image created just a single partition of 8GB, so the
  This amount of memory was obviously not sufficient for our tests, so we
  needed to add some storage memory to the instances.
  We employed the volume utility of PoliCloud.
- It is possible to create virtual disks.
+ It is possible to create virtual disks that allows you to create virtual
+ disks.
+ .
  The property of these disks is that the memory is persistent: what is saved
  on a volume 
 \begin_inset Quotes eld
@@ -695,9 +742,9 @@ persists
 \begin_inset Quotes erd
 \end_inset
 
- until the disk is deleted, but we didn't exploit this feature.
- We attached a volume of 50GB big to each instance.
- We also created a swap partition foreach instance exploiting a part of
+ until the disk is deleted (useful but not needed feature in our case).
+ We attached a volume of 50GB to each instance.
+ We also created a swap partition for each instance exploiting a part of
  the unoccupied disk it using 
 \emph on
 
@@ -1140,7 +1187,7 @@ Memory setup on a worker (Part 2, after the reboot)
 
 \end_inset
 
-Now the instances should be ready to install Hadoop and perform the tests.
+Now the instances should be ready to install the Hadoop environment.
 \end_layout
 
 \begin_layout Paragraph
@@ -1241,8 +1288,8 @@ Apache Pig is a high-level platform for creating programs that run on Apache
  a notation which makes MapReduce programming high level, similar to that
  of SQL for RDBMSs.
  Pig was not included in the playbook so we installed it manually after
- the playbook was executed using the Cloudera 5 Repository.
- Pig is on Cloudera repository, so just type the following command on Master:
+ the playbook was executed using the Cloudera 5 Repository, just type the
+ following command on Master:
 \begin_inset listings
 inline false
 status open
@@ -1263,44 +1310,111 @@ End of the Installation
 
 \begin_layout Standard
 At the end of the installation we should have an architecture that corresponds
- to the deployment diagram show in the figure below.
-\begin_inset Float figure
-placement H
-wide false
-sideways false
+ to the deployment diagram show in the figure below show in Figure 1.
+ To launch task just SSH the Master and launc tasks with the user 
+\emph on
+hdfs
+\emph default
+.
+ With the following command:
+\begin_inset listings
+inline false
 status open
 
 \begin_layout Plain Layout
-\align center
-\begin_inset Graphics
-	filename img/deployment.png
-	width 10cm
 
-\end_inset
-
-
-\begin_inset Caption Standard
-
-\begin_layout Plain Layout
-Deployment Diagram of the cluster
+sudo su - hdfs
 \end_layout
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
+You can enter in the 
+\emph on
+hdfs
+\emph default
+ user environment.
 \end_layout
 
 \begin_layout Section
 Test Execution and Data Collection
+\end_layout
+
+\begin_layout Standard
+As we have already stated before, the purpose of this work is to acquire
+ a deeper awareness on how our cloud architecture scale.
+ To achieve our goal we designed a test that consisted in repeatedly run
+ a benchmark algorithm while progressively adding more resources to our
+ cluster.
+ We started with the just the master and two workers and we kept adding
+ one worker at a time up to eight.
+\end_layout
+
+\begin_layout Standard
+The benchmark algorithm we chose is a classical matrix-multiplication algorithm.
+ The algorithm multiplies the same square matrix by itself.
+ In addition to scale on the dimension of the cluster we decided that would
+ have been interesting also to scale on the dimension of the matrix, we
+ chose a 500 rows by 500 column matrix before and a 1000 rows by 1000 column
+ then.
+\end_layout
+
+\begin_layout Standard
+So, to sum up, we ran the following tests:
+\end_layout
+
+\begin_layout Enumerate
+500 by 500 matrix on a 3-node cluster
+\end_layout
+
+\begin_layout Enumerate
+500 by 500 matrix on a 4-node cluster
+\end_layout
+
+\begin_layout Enumerate
+500 by 500 matrix on a 5-node cluster
+\end_layout
+
+\begin_layout Enumerate
+500 by 500 matrix on a 6-node cluster
+\end_layout
+
+\begin_layout Enumerate
+500 by 500 matrix on a 7-node cluster
+\end_layout
+
+\begin_layout Enumerate
+500 by 500 matrix on a 8-node cluster
+\end_layout
+
+\begin_layout Enumerate
+1000 by 1000 matrix on a 3-node cluster
+\end_layout
+
+\begin_layout Enumerate
+1000 by 1000 matrix on a 4-node cluster
+\end_layout
+
+\begin_layout Enumerate
+1000 by 1000 matrix on a 5-node cluster
+\end_layout
+
+\begin_layout Enumerate
+1000 by 1000 matrix on a 6-node cluster
+\end_layout
+
+\begin_layout Enumerate
+1000 by 1000 matrix on a 7-node cluster
+\end_layout
+
+\begin_layout Enumerate
+1000 by 1000 matrix on a 8-node cluster
+\end_layout
+
+\begin_layout Standard
+In order for our results to be consistent we run each of the just mentioned
+ tests 10 times.
+ Unfortunately, due to the significant amount of time required, we hadn't
+ been able to run each test 30 times, as the common practice would suggest.
 \end_layout
 
 \begin_layout Subsection
@@ -1308,7 +1422,7 @@ Generation of the Matrices
 \end_layout
 
 \begin_layout Standard
-We used a simple C program to generate a square of matrix of size 
+We used a simple C program to generate a dense square matrix of size 
 \emph on
 DIMxDIM
 \emph default
@@ -1325,6 +1439,7 @@ t value>.
 The program uses OpenMP to speed up the generation of the matrix.
  To compile the source type the following command:
 \begin_inset listings
+lstparams "language=bash"
 inline false
 status open
 
@@ -1540,6 +1655,11 @@ The Test Script
 \end_layout
 
 \begin_layout Standard
+This is the pig latin script that performs the multiplication.
+ Since our goal was to run a benchmark and not to actually multiply matrices
+ we didn't bother to choose a particularly efficient implementaion and we
+ went for the classical naive school-book algorithm with complexity O(n^3).
+ 
 \begin_inset Float algorithm
 placement H
 wide false
@@ -1608,10 +1728,6 @@ The test script in Pig Latin
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Plain Layout
 
 \end_layout
 
