@@ -59,8 +59,6 @@ for mat in log_tree:
 			for job in log_tree[mat][n_nodes][node]:
 				log_tree[mat][n_nodes][node][job]=log_tree[mat][n_nodes][node][job]/10
 
-print(log_tree)
-
 for node in nodes:
 	for mat in log_tree:
 		plt.clf()
@@ -73,12 +71,27 @@ for node in nodes:
 				for job in log_tree[mat][n_nodes][node]:
 					plot_ar[int(job)-1][ int(n_nodes)]=log_tree[mat][n_nodes][node][job]
 			except Exception: continue
-		print(node, mat,plot_ar)
 		for ar in plot_ar:
-			plt.plot(ar)
+			plt.plot(ar,label="job"+ str( plot_ar.index(ar)+1)+" "+mat )
+		plt.legend()
 		plt.savefig(ROOT_DIR+"/doc/img/job_"+node+"_"+mat+".png")
 
-print(log_tree)
+print("Plotting cumulative exec time per job")
+for mat in log_tree:
+	plt.clf()
+	plt.title("Overlapping job time, "+mat)
+	plt.xlabel("n_workers")
+	plt.ylabel("time[s]")
+	for node in nodes:
+		plot_ar=[[None]*(MAX_NODES+1),[None]*(MAX_NODES+1)]
+		for n_nodes in log_tree[mat]:
+			try:
+				for job in log_tree[mat][n_nodes][node]:
+					plot_ar[int(job)-1][ int(n_nodes)]=log_tree[mat][n_nodes][node][job]
+			except Exception: continue
+		for ar in plot_ar:
+			plt.plot(ar,label="job"+ str( plot_ar.index(ar)+1)+" "+mat )
+		plt.savefig(ROOT_DIR+"/doc/img/global_job"+"_"+mat+".png")
 
 #plot mean exec time with boxes
 print("Plotting mean exec time")
@@ -115,14 +128,15 @@ for matrix in tree:
 	base = copy.deepcopy(avg_sorted[matrix][0])
 	for i in range(0,len(avg_sorted[matrix])):
 		avg_sorted[matrix][i] = base/avg_sorted[matrix][i]
-	print(avg_sorted[matrix])
+
 x_avg.sort()
 
 for matrix in tree:
 	plt.clf()
-	plt.title("Speedup "+matrix)
+	plt.title("Speed up "+matrix)
 	plt.xlabel("n_workers")
-	plt.plot(x_avg,avg_sorted[matrix])
+	plt.plot(x_avg,avg_sorted[matrix],label="speed up "+matrix)
+	plt.legend()
 	plt.savefig(ROOT_DIR+"doc/img/speedup_"+matrix+".png")
 
 

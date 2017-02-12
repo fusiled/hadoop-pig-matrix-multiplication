@@ -253,7 +253,7 @@ Architecture
 On top of OpenStack we ran a Master and and a variable number of workers.
  Master was set as namenode.
  Also yarn and Pig were running on it.
- The Figure 1 shows how the architecture will be at the end of the installation.
+ Figure 1 shows how the architecture will be at the end of the installation.
 \begin_inset Float figure
 placement H
 wide false
@@ -1657,8 +1657,8 @@ The Test Script
 \begin_layout Standard
 This is the pig latin script that performs the multiplication.
  Since our goal was to run a benchmark and not to actually multiply matrices
- we didn't bother to choose a particularly efficient implementaion and we
- went for the classical naive school-book algorithm with complexity O(n^3).
+ we didn't bother to choose a particularly efficient implementaion and thus
+ we went for the classical naive school-book algorithm with complexity O(n^3).
  
 \begin_inset Float algorithm
 placement H
@@ -2111,8 +2111,850 @@ Yarn miner script
 
 \end_layout
 
+\begin_layout Subsection
+Log Files
+\end_layout
+
+\begin_layout Standard
+On the GitHub repository of the project, in addition to the original log
+ files, we have pushed also some other files that contains a cleaner and
+ more human readable version of the original log files.
+ These files are the following:
+\end_layout
+
+\begin_layout Description
+pig_matrix-mul_coarse.csv contains extremely aggregated data.
+ There is one row for each group of test (i.e.
+ one row for each cluster dimension for each matrix dimesnion).
+ In addition to the mean total time we have included also some statistics
+ such as median and standard deviation.
+\end_layout
+
+\begin_layout Description
+pig_matrix-mul_fine.csv contains aggregated data for each test.
+ For each of test 120 we ran we have reported some statistics for each one
+ of the two jobs that compose each test.The header is compose as follows:
+\end_layout
+
+\begin_layout Itemize
+Nodes: the number of datanodes we were using;
+\end_layout
+
+\begin_layout Itemize
+Dim: the dimension of the matrix (either 500 or 1000);
+\end_layout
+
+\begin_layout Itemize
+Test: a number that goes from 1 to 10 that represents the number of the
+ test for a given cluster dimension and matrix dimension;
+\end_layout
+
+\begin_layout Itemize
+Job: since each test is composed of two jobs this value can be either 1
+ or 2;
+\end_layout
+
+\begin_layout Itemize
+JobId: a unique job identification number;
+\end_layout
+
+\begin_layout Itemize
+Maps: number of maps of this job (this value depends on the dimension of
+ the input);
+\end_layout
+
+\begin_layout Itemize
+Reduces: number of reduces of this job (this value depends on the number
+ datanodes);
+\end_layout
+
+\begin_layout Itemize
+MaxMapTime: time of the map that took more time;
+\end_layout
+
+\begin_layout Itemize
+MinMapTIme: time of the map that took less time;
+\end_layout
+
+\begin_layout Itemize
+AvgMapTime: average map time;
+\end_layout
+
+\begin_layout Itemize
+MedianMapTime: median map time;
+\end_layout
+
+\begin_layout Itemize
+MaxReduceTime: time of the reduce that took more time;
+\end_layout
+
+\begin_layout Itemize
+MinReduceTime: time of the reduce that took less time;;
+\end_layout
+
+\begin_layout Itemize
+AvgReduceTime: average reduce time;
+\end_layout
+
+\begin_layout Itemize
+MedianReducetime: median reduce time;
+\end_layout
+
+\begin_layout Itemize
+Alias: 
+\begin_inset Quotes erd
+\end_inset
+
+variables
+\begin_inset Quotes erd
+\end_inset
+
+ of the pig latin script used for this job;
+\end_layout
+
+\begin_layout Itemize
+Feature: operations performed in this job;
+\end_layout
+
+\begin_layout Itemize
+Date;
+\end_layout
+
+\begin_layout Itemize
+Time: total time for the test (job1 + job2)
+\end_layout
+
+\begin_layout Description
+pig_matrix-mul_extra-fine.csv contains a finer graned version of 
+\begin_inset Quotes eld
+\end_inset
+
+pig_matrix-mul_fine.csv
+\begin_inset Quotes erd
+\end_inset
+
+.
+ The execution times on each worker are also reported for each job of each
+ test.
+\end_layout
+
+\begin_layout Subsection
+Results
+\end_layout
+
+\begin_layout Standard
+Figure 2 shows the total execution times with both matrices w.r.t.
+ the different cluster dimensions.
+ We decided to use a boxplot for the representation because in a single
+ plot are included a lot of information about the distribution of the results
+ along the test.
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename img/box_m500.png
+	width 8cm
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename img/box_m1000.png
+	width 8cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Boxplot of the results
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+Representations of execution times on each worker can be found in Appendix
+ A.
+ Figure 3 shows the speed-up obtained from increasing the datanodes from
+ 3 to 8.
+ We considered as 
+\begin_inset Quotes eld
+\end_inset
+
+base case
+\begin_inset Quotes erd
+\end_inset
+
+ the execution time of the algorithm with 3 nodes.
+ Figure 4 has been obtained by overlapping the graphs contained in Appendix
+ A.
+ It is easy to observe that, for each job, lines are 
+\begin_inset Quotes eld
+\end_inset
+
+well overlapped
+\begin_inset Quotes erd
+\end_inset
+
+ for the 1000x1000 matrix.
+ This means that the time to end one job is equal on each node.
+ The graph of the tests with the matrix 500x500 is more confusing: this
+ means that on each machine the execution time per job is more variable.
+ 
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename img/speedup_m500.png
+	width 8cm
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename img/speedup_m1000.png
+	width 8cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Speed-up 1000x1000 matrix
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename img/global_job_m500.png
+	width 8cm
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename img/global_job_m1000.png
+	width 8cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Graph obtained by overlapping of the graphs of the Appendix A
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Section
 Conclusions
+\end_layout
+
+\begin_layout Standard
+As one would expext, by increasing the number of workers the time required
+ for the algorithm to complete decreases.
+ In our opinion, the interruction of this decreasing trend after the addition
+ of the seventh worker can be explained with the fact that we don't really
+ know how openstack allocates the instances and where these instances are
+ physically located.
+ The fact that this worsening is more empasized with the 500 by 500 matrices
+ can be addressed by the different ratio between the time required for the
+ management of the workers and the time of actual computation.
+ As future work we suggest to retake the tests, in fact, the degradation
+ in the performance could be due to a temporal excess load on the Policloud.
+ We would also suggest to contunue adding more machines, beyond eight, and
+ see how the scaling behaves.
+ 
+\end_layout
+
+\begin_layout Section
+\start_of_appendix
+Execution time per job Graphs
+\end_layout
+
+\begin_layout Standard
+Each figure shows the average execution time on a node w.r.t.
+ the dimension of the cluster.
+ The times for each of the two jobs that compose a test are represented
+ separately in the plot.
+ Plots realted to worker3 and successive start from 4 workers up to 8 because
+ Worker3 is used only when the dimension of the cluster is greater than
+ 3.
+ A similar rule is applied also for successive workers.
+ The graphs for Worker7 are not significant because they're just a bunch
+ of points, so they've been replaced by Table 1.
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename img/job_ma_m500.png
+	width 8cm
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename img/job_ma_m1000.png
+	width 8cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Execution time per job on Master
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename img/job_w1_m500.png
+	width 8cm
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename img/job_w1_m1000.png
+	width 8cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Execution time per job on Worker1
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename img/job_w2_m500.png
+	width 8cm
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename img/job_w2_m1000.png
+	width 8cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Execution time per job on Worker2
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename img/job_w3_m500.png
+	width 8cm
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename img/job_w3_m1000.png
+	width 8cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Execution time per job on Worker3
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename img/job_w4_m500.png
+	width 8cm
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename img/job_w4_m1000.png
+	width 8cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Execution time per job on Worker4
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename img/job_w5_m500.png
+	width 8cm
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename img/job_w5_m1000.png
+	width 8cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Execution time per job on Worker5
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename img/job_w6_m500.png
+	width 8cm
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename img/job_w6_m1000.png
+	width 8cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Execution time per job on Worker6
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float table
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+500
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="3" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+job
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+time[s]
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\color blue
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+124.6
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\color orange
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+410.4
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1000
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="3" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+job
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+time[s]
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\color blue
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1170.5
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\color orange
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2580.8
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Execution time per job on Worker7
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_body
