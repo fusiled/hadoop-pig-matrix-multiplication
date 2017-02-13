@@ -8,7 +8,7 @@
 \use_default_options true
 \maintain_unincluded_children false
 \language english
-\language_package default
+\language_package auto
 \inputencoding auto
 \fontencoding global
 \font_roman "default" "default"
@@ -128,7 +128,7 @@ Document Organization
 \end_layout
 
 \begin_layout Standard
-Section 1 describes the purpose of the document and fournishes other general
+Section 1 describes the purpose of the document and furnishes other general
  informations.
  Section 2 describes the installation of the environment.
  Section 3 describes the test execution and how we collected the data.
@@ -282,11 +282,11 @@ matrices
 \begin_inset space ~
 \end_inset
 
-archive
-\begin_inset space ~
+archive (7z format)
+\begin_inset Newline newline
 \end_inset
 
-(7z) 
+
 \begin_inset CommandInset href
 LatexCommand href
 target "https://drive.google.com/file/d/0B8vc7cpy6aOcRGVDTHN2ZlVTbnM/view?usp=sharing"
@@ -308,12 +308,12 @@ Architecture
 On top of OpenStack we ran a Master and and a variable number of workers.
  Master was set as namenode.
  Also yarn and Pig were running on it.
+ Also Master contributes on job execution.
  Figure 1 shows how the architecture will be at the end of the installation.
 \begin_inset Float figure
-placement H
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \align center
@@ -376,7 +376,7 @@ Installation
 \end_layout
 
 \begin_layout Standard
-This Section describe the installation of the cluster on the PoliCloud Environme
+This Section describe the installation of the cluster on the PoliCloud environme
 nt.
  The entry point of PoliCloud for users is a dashboard reachable by the
  web.
@@ -392,7 +392,7 @@ Requirements
 \begin_layout Standard
 A minimal knowledge of Unix shell environment is required to understand
  what the scripts do.
- The knwoldege of SSH key management is requested.
+ The knowldege of SSH key management is requested.
  The scripts are anyway thoroughly commented.
  A knowledge of the RedHat/Fedora systems is recommended but not requested
  to understand what 
@@ -407,7 +407,7 @@ Run the Instances
 \end_layout
 
 \begin_layout Standard
-To launch an instance, select a flavour an OS image and a SSH public key
+To launch an instance, select a flavour, an OS image and a SSH public key
  for the access.
  Flavours are a sort of predefined 
 \begin_inset Quotes eld
@@ -422,10 +422,10 @@ virtual hardware configurations
 \end_inset
 
 .
- You can select only predefined flavours, but you can use any OS image.
+ You can select only predefined flavours, but you can use any valid OS image.
  You can also save instance images that can be reused in the future.
  Every instance ran CentOS 6 as operating system.
- The image of CentOS 6 is made avaialbe by the PoliCloud Environment.
+ The image of CentOS 6 is made available by the PoliCloud Environment.
  We allocated the resources in the following way:
 \end_layout
 
@@ -457,9 +457,10 @@ iptables
  running by default.
  This one must be disabled with Algorithm 1.
 \begin_inset Float algorithm
+placement h
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset listings
@@ -604,12 +605,12 @@ in
 \end_layout
 
 \begin_layout Standard
-The Algorithm 2 can be run on every machine to set points 2,3,4 and 5.
+Algorithm 2 can be run on every machine to set points 2,3,4 and 5.
  The reboot is needed to let the SeLinux deactivation apply.
 \begin_inset Float algorithm
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset listings
@@ -781,9 +782,7 @@ The available CentOS image created just a single partition of 8GB, so the
  This amount of memory was obviously not sufficient for our tests, so we
  needed to add some storage memory to the instances.
  We employed the volume utility of PoliCloud.
- It is possible to create virtual disks that allows you to create virtual
- disks.
- .
+ It is possible to create virtual disks.
  The property of these disks is that the memory is persistent: what is saved
  on a volume 
 \begin_inset Quotes eld
@@ -797,7 +796,20 @@ persists
 \begin_inset Quotes erd
 \end_inset
 
- until the disk is deleted (useful but not needed feature in our case).
+ until the disk is deleted (useful but not needed feature in our case)
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+Default disks of the instances don't have the persistent property.
+ That's why they're called 
+\emph on
+ephemeral.
+\end_layout
+
+\end_inset
+
+.
  We attached a volume of 50GB to each instance.
  We also created a swap partition for each instance exploiting a part of
  the unoccupied disk it using 
@@ -814,15 +826,15 @@ target "https://linux.die.net/man/8/cfdisk"
 \emph default
 (a partition editor for linux).
  Algorithm 3,4,5 and 6 should perform the needed tasks.
- Algorithm 3 and 4 must be executed on Master and also on workers.
- After that perform Algorithm 5 on Master and Algorithm 6 on every worker.
+ Algorithm 3 and 4 must be executed on Master and also on workers, then
+ run Algorithm 5 on Master and Algorithm 6 on every worker.
  Note that algorithms 5 and 6 are intended as a continuation of Algorithm
  4.
 \begin_inset Float algorithm
-placement H
+placement h
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset listings
@@ -940,10 +952,10 @@ Memory setup on an instance (Part 1)
 
 
 \begin_inset Float algorithm
-placement H
+placement h
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset listings
@@ -1038,10 +1050,10 @@ Memory setup on an instance (Part 2, after the reboot, common part)
 
 
 \begin_inset Float algorithm
-placement H
+placement h
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset listings
@@ -1148,10 +1160,10 @@ Memory setup on Master (Part 2, after the reboot)
 
 
 \begin_inset Float algorithm
-placement H
+placement h
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset listings
@@ -1279,8 +1291,8 @@ Ansible is an open-source automation engine that automates cloud provisioning,
 hosts
 \emph default
  that can be edited.
- In this file you can specify the hadoop roles of the machines (namenode,
- datanode) and which software you want to install (hbase, zookeeper, spark...).
+ In this file you can specify the hadoop roles of each machine (namenode,
+ datanode) and which software you want to install (zookeeper, spark...).
  We installed a simple cluster with Master as namenode and datanode (it
  had enough computationl power to perform both tasks) and the workers as
  datanodes.
@@ -1365,13 +1377,13 @@ End of the Installation
 
 \begin_layout Standard
 At the end of the installation we should have an architecture that corresponds
- to the deployment diagram show in the figure below show in Figure 1.
- To launch task just SSH the Master and launc tasks with the user 
+ to the deployment diagram shown in Figure 1.
+ To launch any task on the cluster just SSH the Master and in the 
 \emph on
 hdfs
 \emph default
-.
- With the following command:
+ user environment.
+ To enter in such environment type the following command:
 \begin_inset listings
 inline false
 status open
@@ -1383,11 +1395,7 @@ sudo su - hdfs
 
 \end_inset
 
-You can enter in the 
-\emph on
-hdfs
-\emph default
- user environment.
+
 \end_layout
 
 \begin_layout Section
@@ -1519,10 +1527,10 @@ outMatrix.txt
 file, which contains the matrix.
  In our case we set DIM to 500 and then 1000.
 \begin_inset Float algorithm
-placement H
+placement h
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset listings
@@ -1708,10 +1716,15 @@ The Test Script
 The Pig Latin script shown in Algorithm 8 performs the multiplication.
  Since our goal was to run a benchmark and not to actually multiply matrices
  we didn't bother to choose a particularly efficient implementaion and thus
- we went for the classical naive school-book algorithm with complexity O(n^3).
+ we went for the classical naive school-book algorithm with time complexity
+ 
+\begin_inset Formula $O(n^{3})$
+\end_inset
+
+.
  
 \begin_inset Float algorithm
-placement H
+placement h
 wide false
 sideways false
 status collapsed
@@ -1786,12 +1799,12 @@ The test script in Pig Latin
 Algorithm 9 is just a wrapper of Algorithm 8: It iterates 10 times (this
  is the number of our repetitions set for each test case) for each matrix
  (so once for 500 and once for 1000) and it prepares the environment by
- cleaning the hdfs , copying the test matrix and launching Algorithm 8.
+ cleaning the hdfs, copying the test matrix and launching Algorithm 8.
  Algorithm 9 also generate a file where it stores for each line timestamp,
  test matrix , number of nodes and execution time.
  This will be helpful in log processing.
 \begin_inset Float algorithm
-placement H
+placement h
 wide false
 sideways false
 status collapsed
@@ -1999,7 +2012,15 @@ Log Processing
 
 \begin_layout Standard
 Algorithm 10 has been used to mine yarn logs of each node.
- It generates an output file at the path specified by 
+ Raw logs can be found at the link cited at Section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "subsec:Reference-Links"
+
+\end_inset
+
+.
+ This script generates an output file at the path specified by 
 \emph on
 $log_times 
 \emph default
@@ -2020,19 +2041,23 @@ app_id
 \emph default
 it searches for occurrence in every yarn log.
  A yarn log is uniquely associated to a node.
- By getting the timestamp of the first and the last occurence it is possible
+ By getting the timestamp of the first and the last occurence it is easy
  to compute the execution time.
  Check the code and the comments to understand better how the Algorithm
  10 works.
+\end_layout
 
-\emph on
- 
-\emph default
+\begin_layout Paragraph
+NOTE
+\end_layout
 
+\begin_layout Standard
+Algorithm 10 were run with AWK=4.1.4.
+ Different versions may not work.
 \begin_inset Float algorithm
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset listings
@@ -2253,7 +2278,7 @@ On the GitHub repository of the project, in addition to the original log
 \begin_layout Description
 pig_matrix-mul_coarse.csv contains extremely aggregated data.
  There is one row for each group of test (i.e.
- one row for each cluster dimension for each matrix dimesnion).
+ one row for each cluster dimension for each matrix dimension).
  In addition to the mean total time we have included also some statistics
  such as median and standard deviation.
 \end_layout
@@ -2267,16 +2292,29 @@ pig_matrix-mul_fine.csv contains aggregated data for each test.
 
 \begin_layout Description
 pig_matrix-mul_extra-fine.csv contains a finer graned version of 
-\begin_inset Quotes eld
-\end_inset
-
+\emph on
 pig_matrix-mul_fine.csv
-\begin_inset Quotes erd
-\end_inset
-
+\emph default
 .
  The execution times on each worker are also reported for each job of each
  test.
+\end_layout
+
+\begin_layout Standard
+The above described files are the result of the combination of pig_logs
+ (contained in the linked zipped folder), 
+\emph on
+pig_times.txt
+\emph default
+ and 
+\emph on
+log_times.csv
+\emph default
+ (contained in the repository 
+\emph on
+log 
+\emph default
+folder).
 \end_layout
 
 \begin_layout Subsection
@@ -2290,7 +2328,7 @@ Figure 2 shows the total execution times with both matrices w.r.t.
  plot are included a lot of information about the distribution of the results
  along the test.
 \begin_inset Float figure
-placement H
+placement h
 wide false
 sideways false
 status collapsed
@@ -2356,7 +2394,7 @@ well overlapped
  means that on each machine the execution time per job is more variable.
  
 \begin_inset Float figure
-placement H
+placement h
 wide false
 sideways false
 status collapsed
@@ -2444,9 +2482,9 @@ Conclusions
 \begin_layout Standard
 As one would expect, by increasing the number of working nodes the time
  required for the algorithm to complete decreases.
- In our opinion, the interruction of this decreasing trend after the addition
+ In our opinion, the interruption of this decreasing trend after the addition
  of the seventh worker can be explained with the fact that we don't really
- know how openstack allocates the instances and where these instances are
+ know how OpenStack allocates the instances and where these instances are
  physically located.
  The fact that this worsening is more empasized with the 500 by 500 matrix
  can be addressed by the different ratio between the time required for the
@@ -2454,18 +2492,38 @@ As one would expect, by increasing the number of working nodes the time
  As future work we suggest to retake the tests, in fact, the degradation
  in the performance could be also due to a temporal excess load on the PoliCloud
  at that time.
- We would also suggest to contunue adding more machines, beyond eight, and
+ We would also suggest to continue adding more machines, beyond eight, and
  see how the scaling behaves.
  Regarding PoliCloud usability, it is very easy to use, but some bugs on
- the infrastrucutre slowed down the work: [OLTRE AL BUG DI SSH NON SO COME
- SI SCRIVE IN INGLESE], the action of deletring instances generates error
- sometimes.
- After this, the instance can be deleted only by the system administrator.
+ the infrastrucutre slowed down the work: [
+\begin_inset Quotes eld
+\end_inset
+
+OLTRE AL BUG DI SSH PRIMA CITATO
+\begin_inset Quotes erd
+\end_inset
+
+ NON SO COME SI SCRIVE IN INGLESE], the action of deleting instances generates
+ error sometimes.
+ After this event, the inquired instance can only be deleted by the system
+ administrator.
+ The main problems that we had to face during installation were the correct
+ sizing of the storage space of the instances w.r.t the size of the test matrces.
+ We had a cap of maximum storage memory that we needed to part.
+ Too small matrix would not be significant, but too big would have run out
+ of memory the partition of the nodes making the nodes unhealthy or filling
+ the swap, blocking the entire test case.
+ 
+\emph on
+sergevs
+\emph default
+' tool is quite powerful.
+ We just used a small part of its potential.
 \end_layout
 
 \begin_layout Section
 \start_of_appendix
-Execution time per job graphs
+Execution Time per Job Graphs
 \end_layout
 
 \begin_layout Standard
@@ -3068,7 +3126,7 @@ MaxReduceTime: time of the reduce that took more time;
 \end_layout
 
 \begin_layout Itemize
-MinReduceTime: time of the reduce that took less time;;
+MinReduceTime: time of the reduce that took less time;
 \end_layout
 
 \begin_layout Itemize
@@ -3101,6 +3159,34 @@ Date;
 
 \begin_layout Itemize
 Time: total time for the test (job1 + job2)
+\end_layout
+
+\begin_layout Section
+Structure of the Repository
+\end_layout
+
+\begin_layout Standard
+The 
+\emph on
+doc
+\emph default
+ folder contains this document and the images required from it.
+ The 
+\emph on
+log
+\emph default
+ folder contains the obtained logs in 
+\emph on
+csv 
+\emph default
+format.
+ The 
+\emph on
+src 
+\emph default
+folder contains all the scripts used in the project.
+ These scripts are well described in this document and they're organized
+ in subfolders.
 \end_layout
 
 \end_body
