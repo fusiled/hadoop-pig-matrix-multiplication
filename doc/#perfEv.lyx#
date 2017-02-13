@@ -270,26 +270,14 @@ logs
 \begin_inset space ~
 \end_inset
 
-and
+andTest
 \begin_inset space ~
 \end_inset
 
-test
-\begin_inset space ~
-\end_inset
-
-matrices
-\begin_inset space ~
-\end_inset
-
-archive
-\begin_inset space ~
-\end_inset
-
-(7z) 
+Matrices 
 \begin_inset CommandInset href
 LatexCommand href
-target "https://drive.google.com/file/d/0B8vc7cpy6aOcRGVDTHN2ZlVTbnM/view?usp=sharing"
+target "https://drive.google.com/file/d/0B8vc7cpy6aOcNHRtMmdVOXFCSlE/view?usp=sharing"
 
 \end_inset
 

@@ -124,6 +124,21 @@ This document is intended to analize the scaling capability of the Hadoop
 \end_layout
 
 \begin_layout Subsection
+Document Organization
+\end_layout
+
+\begin_layout Standard
+Section 1 describes the purpose of the document and fournishes other general
+ informations.
+ Section 2 describes the installation of the environment.
+ Section 3 describes the test execution and how we collected the data.
+ Section 4 sums up the results, what we observed and what should be done
+ to improve the results or for further research.
+ The appendices integrate the document.
+ 
+\end_layout
+
+\begin_layout Subsection
 \begin_inset CommandInset label
 LatexCommand label
 name "subsec:Reference-Links"
@@ -235,6 +250,46 @@ PoliCloud
 \begin_inset CommandInset href
 LatexCommand href
 target "http://policloud.polimi.it/"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+Raw
+\begin_inset space ~
+\end_inset
+
+Yarn
+\begin_inset space ~
+\end_inset
+
+logs
+\begin_inset space ~
+\end_inset
+
+and
+\begin_inset space ~
+\end_inset
+
+test
+\begin_inset space ~
+\end_inset
+
+matrices
+\begin_inset space ~
+\end_inset
+
+archive (7z format)
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset CommandInset href
+LatexCommand href
+target "https://drive.google.com/file/d/0B8vc7cpy6aOcRGVDTHN2ZlVTbnM/view?usp=sharing"
 
 \end_inset
 
@@ -391,7 +446,7 @@ general.small
 \end_layout
 
 \begin_layout Standard
-It's important to highlight that, due to a bug, during the initializiation
+It's important to highlight that, due to a bug, during the initializiation,
  the instance was not always able to load the key for the SSH access.
  We solved this issue by trial: we kept launching instances until one loaded
  the keys correctly, then we replicated that instance several times.
@@ -486,7 +541,7 @@ reference "subsec:Reference-Links"
 \end_layout
 
 \begin_layout Enumerate
-CentOS6
+CentOS 6
 \end_layout
 
 \begin_layout Enumerate
@@ -1197,7 +1252,7 @@ WARNING ON MOUNTED PARTITIONS
 \begin_layout Standard
 The partitions are mounted, but we didn't altered the 
 \emph on
-/etc/fstab/
+/etc/fstab
 \emph default
 , which is the file that tells the OS which partitions mount at boot time.
  
@@ -1345,21 +1400,16 @@ As we have already stated before, the purpose of this work is to acquire
  To achieve our goal we designed a test that consisted in repeatedly run
  a benchmark algorithm while progressively adding more resources to our
  cluster.
- We started with the just the master and two workers and we kept adding
- one worker at a time up to eight.
-\end_layout
-
-\begin_layout Standard
-The benchmark algorithm we chose is a classical matrix-multiplication algorithm.
+ We started with the just Master and two workers and we kept adding one
+ worker at a time up to eight.
+ The benchmark algorithm we chose is a classical matrix-multiplication algorithm.
  The algorithm multiplies the same square matrix by itself.
  In addition to scale on the dimension of the cluster we decided that would
  have been interesting also to scale on the dimension of the matrix, we
  chose a 500 rows by 500 column matrix before and a 1000 rows by 1000 column
  then.
-\end_layout
-
-\begin_layout Standard
-So, to sum up, we ran the following tests:
+ Note that we always used the same two matrices for every test.
+ So, to sum up, we ran the following tests:
 \end_layout
 
 \begin_layout Enumerate
@@ -1655,7 +1705,7 @@ The Test Script
 \end_layout
 
 \begin_layout Standard
-This is the pig latin script that performs the multiplication.
+The Pig Latin script shown in Algorithm 8 performs the multiplication.
  Since our goal was to run a benchmark and not to actually multiply matrices
  we didn't bother to choose a particularly efficient implementaion and thus
  we went for the classical naive school-book algorithm with complexity O(n^3).
@@ -1664,7 +1714,7 @@ This is the pig latin script that performs the multiplication.
 placement H
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset listings
@@ -1733,12 +1783,18 @@ The test script in Pig Latin
 
 \end_inset
 
-
+Algorithm 9 is just a wrapper of Algorithm 8: It iterates 10 times (this
+ is the number of our repetitions set for each test case) for each matrix
+ (so once for 500 and once for 1000) and it prepares the environment by
+ cleaning the hdfs , copying the test matrix and launching Algorithm 8.
+ Algorithm 9 also generate a file where it stores for each line timestamp,
+ test matrix , number of nodes and execution time.
+ This will be helpful in log processing.
 \begin_inset Float algorithm
 placement H
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset listings
@@ -1942,6 +1998,37 @@ Log Processing
 \end_layout
 
 \begin_layout Standard
+Algorithm 10 has been used to mine yarn logs of each node.
+ It generates an output file at the path specified by 
+\emph on
+$log_times 
+\emph default
+where it stores app_id of a job, the name of the node and the execution
+ time.
+ The script mines 
+\emph on
+app_id
+\emph default
+s from the logs obtained by pig executions contained inf the directory 
+\emph on
+$pig_log_dir.
+ 
+\emph default
+For every found 
+\emph on
+app_id 
+\emph default
+it searches for occurrence in every yarn log.
+ A yarn log is uniquely associated to a node.
+ By getting the timestamp of the first and the last occurence it is possible
+ to compute the execution time.
+ Check the code and the comments to understand better how the Algorithm
+ 10 works.
+
+\emph on
+ 
+\emph default
+
 \begin_inset Float algorithm
 wide false
 sideways false
@@ -1960,6 +2047,11 @@ status open
 
 \begin_layout Plain Layout
 
+#Recognize dates with a regex
+\end_layout
+
+\begin_layout Plain Layout
+
 DATE_REGEX="2017-[0-1][0-9]-[0-3][0-9]
 \backslash
 s[0-2][0-9]
@@ -1967,6 +2059,11 @@ s[0-2][0-9]
 :[0-5][0-9]
 \backslash
 :[0-5][0-9]"
+\end_layout
+
+\begin_layout Plain Layout
+
+#path variables
 \end_layout
 
 \begin_layout Plain Layout
@@ -2001,6 +2098,22 @@ do
 
 \begin_layout Plain Layout
 
+	#app_ids have the following regex: [0-9]{13}_[0-9]{4} 
+\end_layout
+
+\begin_layout Plain Layout
+
+	#use awk to find occurrences in $pig_log_dir/$pig_log.
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+	#remove duplicates with pipe combination of sort and unique 
+\end_layout
+
+\begin_layout Plain Layout
+
 	app_id_ar=`awk 'match($0,/[0-9]{13}_[0-9]{4}/){ print substr($0,RSTART,RLENGTH)
 }' ./"$pig_log_dir/$pig_log" | sort | uniq`
 \end_layout
@@ -2023,6 +2136,21 @@ do
 \begin_layout Plain Layout
 
 		do
+\end_layout
+
+\begin_layout Plain Layout
+
+			#just get timestamp of the first and the last occurrence 
+\end_layout
+
+\begin_layout Plain Layout
+
+			#of $app_id, convert them in seconds and substract them
+\end_layout
+
+\begin_layout Plain Layout
+
+			#to obtain the execution time
 \end_layout
 
 \begin_layout Plain Layout
@@ -2133,95 +2261,8 @@ pig_matrix-mul_coarse.csv contains extremely aggregated data.
 \begin_layout Description
 pig_matrix-mul_fine.csv contains aggregated data for each test.
  For each of test 120 we ran we have reported some statistics for each one
- of the two jobs that compose each test.The header is compose as follows:
-\end_layout
-
-\begin_layout Itemize
-Nodes: the number of datanodes we were using;
-\end_layout
-
-\begin_layout Itemize
-Dim: the dimension of the matrix (either 500 or 1000);
-\end_layout
-
-\begin_layout Itemize
-Test: a number that goes from 1 to 10 that represents the number of the
- test for a given cluster dimension and matrix dimension;
-\end_layout
-
-\begin_layout Itemize
-Job: since each test is composed of two jobs this value can be either 1
- or 2;
-\end_layout
-
-\begin_layout Itemize
-JobId: a unique job identification number;
-\end_layout
-
-\begin_layout Itemize
-Maps: number of maps of this job (this value depends on the dimension of
- the input);
-\end_layout
-
-\begin_layout Itemize
-Reduces: number of reduces of this job (this value depends on the number
- datanodes);
-\end_layout
-
-\begin_layout Itemize
-MaxMapTime: time of the map that took more time;
-\end_layout
-
-\begin_layout Itemize
-MinMapTIme: time of the map that took less time;
-\end_layout
-
-\begin_layout Itemize
-AvgMapTime: average map time;
-\end_layout
-
-\begin_layout Itemize
-MedianMapTime: median map time;
-\end_layout
-
-\begin_layout Itemize
-MaxReduceTime: time of the reduce that took more time;
-\end_layout
-
-\begin_layout Itemize
-MinReduceTime: time of the reduce that took less time;;
-\end_layout
-
-\begin_layout Itemize
-AvgReduceTime: average reduce time;
-\end_layout
-
-\begin_layout Itemize
-MedianReducetime: median reduce time;
-\end_layout
-
-\begin_layout Itemize
-Alias: 
-\begin_inset Quotes erd
-\end_inset
-
-variables
-\begin_inset Quotes erd
-\end_inset
-
- of the pig latin script used for this job;
-\end_layout
-
-\begin_layout Itemize
-Feature: operations performed in this job;
-\end_layout
-
-\begin_layout Itemize
-Date;
-\end_layout
-
-\begin_layout Itemize
-Time: total time for the test (job1 + job2)
+ of the two jobs that compose each test.
+ Check Appendix B for header interpretation.
 \end_layout
 
 \begin_layout Description
@@ -2401,25 +2442,30 @@ Conclusions
 \end_layout
 
 \begin_layout Standard
-As one would expext, by increasing the number of workers the time required
- for the algorithm to complete decreases.
+As one would expect, by increasing the number of working nodes the time
+ required for the algorithm to complete decreases.
  In our opinion, the interruction of this decreasing trend after the addition
  of the seventh worker can be explained with the fact that we don't really
  know how openstack allocates the instances and where these instances are
  physically located.
- The fact that this worsening is more empasized with the 500 by 500 matrices
+ The fact that this worsening is more empasized with the 500 by 500 matrix
  can be addressed by the different ratio between the time required for the
  management of the workers and the time of actual computation.
  As future work we suggest to retake the tests, in fact, the degradation
- in the performance could be due to a temporal excess load on the Policloud.
+ in the performance could be also due to a temporal excess load on the PoliCloud
+ at that time.
  We would also suggest to contunue adding more machines, beyond eight, and
  see how the scaling behaves.
- 
+ Regarding PoliCloud usability, it is very easy to use, but some bugs on
+ the infrastrucutre slowed down the work: [OLTRE AL BUG DI SSH NON SO COME
+ SI SCRIVE IN INGLESE], the action of deletring instances generates error
+ sometimes.
+ After this, the instance can be deleted only by the system administrator.
 \end_layout
 
 \begin_layout Section
 \start_of_appendix
-Execution time per job Graphs
+Execution time per job graphs
 \end_layout
 
 \begin_layout Standard
@@ -2955,6 +3001,106 @@ Execution time per job on Worker7
 \end_inset
 
 
+\end_layout
+
+\begin_layout Section
+Header Legend
+\end_layout
+
+\begin_layout Standard
+The header of the file 
+\emph on
+pig_matrix-mul_fine.csv
+\emph default
+ cited in Section 3.4 is composed as follows:
+\end_layout
+
+\begin_layout Itemize
+Nodes: the number of datanodes we were using;
+\end_layout
+
+\begin_layout Itemize
+Dim: the dimension of the matrix (either 500 or 1000);
+\end_layout
+
+\begin_layout Itemize
+Test: a number that goes from 1 to 10 that represents the number of the
+ test for a given cluster dimension and matrix dimension;
+\end_layout
+
+\begin_layout Itemize
+Job: since each test is composed of two jobs this value can be either 1
+ or 2;
+\end_layout
+
+\begin_layout Itemize
+JobId: a unique job identification number;
+\end_layout
+
+\begin_layout Itemize
+Maps: number of maps of this job (this value depends on the dimension of
+ the input);
+\end_layout
+
+\begin_layout Itemize
+Reduces: number of reduces of this job (this value depends on the number
+ datanodes);
+\end_layout
+
+\begin_layout Itemize
+MaxMapTime: time of the map that took more time;
+\end_layout
+
+\begin_layout Itemize
+MinMapTIme: time of the map that took less time;
+\end_layout
+
+\begin_layout Itemize
+AvgMapTime: average map time;
+\end_layout
+
+\begin_layout Itemize
+MedianMapTime: median map time;
+\end_layout
+
+\begin_layout Itemize
+MaxReduceTime: time of the reduce that took more time;
+\end_layout
+
+\begin_layout Itemize
+MinReduceTime: time of the reduce that took less time;;
+\end_layout
+
+\begin_layout Itemize
+AvgReduceTime: average reduce time;
+\end_layout
+
+\begin_layout Itemize
+MedianReducetime: median reduce time;
+\end_layout
+
+\begin_layout Itemize
+Alias: 
+\begin_inset Quotes erd
+\end_inset
+
+variables
+\begin_inset Quotes erd
+\end_inset
+
+ of the pig latin script used for this job;
+\end_layout
+
+\begin_layout Itemize
+Feature: operations performed in this job;
+\end_layout
+
+\begin_layout Itemize
+Date;
+\end_layout
+
+\begin_layout Itemize
+Time: total time for the test (job1 + job2)
 \end_layout
 
 \end_body
