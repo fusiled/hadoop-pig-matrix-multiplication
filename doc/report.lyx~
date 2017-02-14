@@ -283,11 +283,7 @@ MatPlotLib
 \begin_inset space ~
 \end_inset
 
-(graph
-\begin_inset space ~
-\end_inset
-
-generation) 
+(graph generation) 
 \begin_inset CommandInset href
 LatexCommand href
 target "http://matplotlib.org/"

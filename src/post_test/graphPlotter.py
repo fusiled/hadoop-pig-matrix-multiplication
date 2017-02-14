@@ -64,7 +64,7 @@ for node in nodes:
 		plt.clf()
 		plt.title("Job time "+node+"_"+mat)
 		plt.xlabel("n_workers")
-		plt.ylabel("time[s]")
+		plt.ylabel("time [s]")
 		plot_ar=[[None]*(MAX_NODES+1),[None]*(MAX_NODES+1)]
 		for n_nodes in log_tree[mat]:
 			try:
@@ -81,7 +81,7 @@ for mat in log_tree:
 	plt.clf()
 	plt.title("Overlapping job time, "+mat)
 	plt.xlabel("n_workers")
-	plt.ylabel("time[s]")
+	plt.ylabel("time [s]")
 	for node in nodes:
 		plot_ar=[[None]*(MAX_NODES+1),[None]*(MAX_NODES+1)]
 		for n_nodes in log_tree[mat]:
@@ -101,8 +101,8 @@ for matrix in tree:
 		ar_time.append(tree[matrix][str(i)] )
 	plt.clf()
 	plt.title("Total Execution time "+matrix)
-	plt.xlabel("n_workers")
-	plt.ylabel("time[s]")
+	plt.xlabel("n_workers-2")
+	plt.ylabel("time [s]")
 	plt.boxplot(ar_time, 0, '')
 	plt.savefig(ROOT_DIR+"doc/img/box_"+matrix+".png")
 
