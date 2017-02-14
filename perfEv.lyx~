@@ -131,10 +131,10 @@ Document Organization
 Section 1 describes the purpose of the document and furnishes other general
  informations.
  Section 2 describes the installation of the environment.
- Section 3 describes the test execution and how we collected the data.
- Section 4 sums up the results, what we observed and what should be done
- to improve the results or for further research.
- The appendices integrate the document.
+ Section 3 describes the test execution and how data have been collected.
+ Section 4 the results, our observations and what should be done in the
+ future.
+ Three appendices integrate the document.
  
 \end_layout
 
@@ -305,11 +305,10 @@ Architecture
 \end_layout
 
 \begin_layout Standard
-On top of OpenStack we ran a Master and and a variable number of workers.
- Master was set as namenode.
- Also yarn and Pig were running on it.
- Also Master contributes on job execution.
- Figure 1 shows how the architecture will be at the end of the installation.
+On top of OpenStack we ran a Master along with a variable number of workers.
+ Master was set as namenode with yarn and Pig running on it.
+ Master contributed also to job execution.
+ Figure 1 shows how the resulting architecture at the end of the installation.
 \begin_inset Float figure
 wide false
 sideways false
@@ -345,10 +344,10 @@ Available Resources
 \end_layout
 
 \begin_layout Standard
-The Hadoop cluster was deployed on PoliCloud platform, the cloud structure
+The Hadoop cluster was deployed on the PoliCloud platform, the cloud structure
  hosted and managed by the Politecnico di Milano.
  PoliCloud is a IaaS built on top of OpenStack.
- The available resources were the following:
+ The resources available to us were the following:
 \end_layout
 
 \begin_layout Itemize
@@ -376,13 +375,12 @@ Installation
 \end_layout
 
 \begin_layout Standard
-This Section describe the installation of the cluster on the PoliCloud environme
-nt.
+This Section describe the different steps involved in the installation of
+ the cluster on the PoliCloud environment.
  The entry point of PoliCloud for users is a dashboard reachable by the
- web.
- From this dashboard you can easily launch instances.
- After you've launched instances it is required to SSH the machines to begin
- the installation of the cluster.
+ web from which you can easily launch the instances you need.
+ After you've launched your instances you can connect to them via SSH and
+ begin the installation of the cluster.
 \end_layout
 
 \begin_layout Subsubsection
@@ -390,14 +388,14 @@ Requirements
 \end_layout
 
 \begin_layout Standard
-A minimal knowledge of Unix shell environment is required to understand
+A minimal knowledge of the Unix shell environment is required to understand
  what the scripts do.
- The knowldege of SSH key management is requested.
+ A knowldege of SSH how ssh works is also needed.
  The scripts are anyway thoroughly commented.
- A knowledge of the RedHat/Fedora systems is recommended but not requested
- to understand what 
+ A knowledge of the RedHat/Fedora systems is recommended but not required
+ in order to understand what the
 \emph on
-yum 
+ yum 
 \emph default
 (the package manager of CentOS) command does.
 \end_layout
@@ -407,8 +405,8 @@ Run the Instances
 \end_layout
 
 \begin_layout Standard
-To launch an instance, select a flavour, an OS image and a SSH public key
- for the access.
+To launch an instance you need to select a flavour, an OS image and a SSH
+ public key for the access.
  Flavours are a sort of predefined 
 \begin_inset Quotes eld
 \end_inset
@@ -424,9 +422,9 @@ virtual hardware configurations
 .
  You can select only predefined flavours, but you can use any valid OS image.
  You can also save instance images that can be reused in the future.
- Every instance ran CentOS 6 as operating system.
+ Everyone of our instances ran CentOS 6 as operating system.
  The image of CentOS 6 is made available by the PoliCloud Environment.
- We allocated the resources in the following way:
+ We allocated our resources in the following way:
 \end_layout
 
 \begin_layout Description
@@ -434,28 +432,29 @@ Master A single instance with flavour
 \emph on
 compute.large
 \emph default
-, which means 8 VCPUs and 4GB RAM and a disk 80GB big.
+, which means 8 VCPUs, 4GB of RAM and 80GB of disk.
 \end_layout
 
 \begin_layout Description
-Worker Multiple instances (from 2 to 7), each one was a 
+Worker Multiple instances (from 2 to 7), each one with 
 \emph on
 general.small
 \emph default
- flavour, which means 1 VCPUs and 2GB RAM and a disk 20 GB big.
+ flavour, which means 1 VCPUs, 2GB of RAM and 20 GB of disk.
 \end_layout
 
 \begin_layout Standard
 It's important to highlight that, due to a bug, during the initializiation,
- the instance was not always able to load the key for the SSH access.
+ the instances were not always able to load the key for the SSH access.
  We solved this issue by trial: we kept launching instances until one loaded
- the keys correctly, then we replicated that instance several times.
+ the key correctly, then we replicated that instance several times.
  The image offered by PoliCloud had also the firewall 
 \emph on
 iptables
 \emph default
  running by default.
- This one must be disabled with Algorithm 1.
+ This feature must be disabled in order for the nodes to be able to comunicate
+ properly, use Algorithm 1 to do it.
 \begin_inset Float algorithm
 placement h
 wide false
@@ -525,7 +524,7 @@ We used the a tool created by
 \emph on
 sergevs
 \emph default
- that is based on Ansible (Check the link at Section 
+, a GitHub user, that is based on Ansible (Check the link at Section 
 \emph on
 
 \begin_inset CommandInset ref
@@ -574,14 +573,14 @@ directory and type
 \emph on
 sudo yum update 
 \emph default
-as root user.
+with root privileges.
 \end_layout
 
 \begin_layout Enumerate
 SSH key passwordless authentication must be configured for root account
  for all target hosts.
- The default configuration of PoliCloud was ok, but it was needed to add
- the access key to the known hosts of the root user.
+ The default configuration of PoliCloud was already fine, we just needed
+ to add the access key to the known hosts of the root user.
 \end_layout
 
 \begin_layout Enumerate
@@ -605,8 +604,8 @@ in
 \end_layout
 
 \begin_layout Standard
-Algorithm 2 can be run on every machine to set points 2,3,4 and 5.
- The reboot is needed to let the SeLinux deactivation apply.
+Algorithm 2 must be run on every machine to fix points 2,3,4 and 5.
+ The reboot is needed to let the SeLinux deactivation be applid.
 \begin_inset Float algorithm
 wide false
 sideways false
@@ -752,8 +751,8 @@ Ansible must be installed manually.
 epel-release 
 \emph default
 repository.
- This repository was added by the above script, so after you run the script
- on Master just type the following command:
+ This repository was added by the above script, so, once you have run the
+ script, on Master type the following command:
 \begin_inset listings
 inline false
 status open
@@ -777,12 +776,12 @@ Memory Partitions and Volumes
 \end_layout
 
 \begin_layout Standard
-The available CentOS image created just a single partition of 8GB, so the
- disk associated to an instance was not fully utilized.
+The available CentOS image created just a single partition of 8GB, which
+ means that the disk associated to an instance was not fully utilized.
  This amount of memory was obviously not sufficient for our tests, so we
  needed to add some storage memory to the instances.
- We employed the volume utility of PoliCloud.
- It is possible to create virtual disks.
+ We employed the volume utility of PoliCloud that allow you to create virtual
+ disks.
  The property of these disks is that the memory is persistent: what is saved
  on a volume 
 \begin_inset Quotes eld
@@ -796,7 +795,8 @@ persists
 \begin_inset Quotes erd
 \end_inset
 
- until the disk is deleted (useful but not needed feature in our case)
+ until the disk is deleted (a useful feature, although not needed in our
+ case)
 \begin_inset Foot
 status collapsed
 
@@ -811,8 +811,8 @@ ephemeral.
 
 .
  We attached a volume of 50GB to each instance.
- We also created a swap partition for each instance exploiting a part of
- the unoccupied disk it using 
+ We also created a swap partition for each instance exploiting part of the
+ unoccupied disk by using 
 \emph on
 
 \begin_inset CommandInset href
@@ -825,9 +825,9 @@ target "https://linux.die.net/man/8/cfdisk"
  
 \emph default
 (a partition editor for linux).
- Algorithm 3,4,5 and 6 should perform the needed tasks.
+ Algorithm 3,4,5 and 6 perform these tasks.
  Algorithm 3 and 4 must be executed on Master and also on workers, then
- run Algorithm 5 on Master and Algorithm 6 on every worker.
+ run Algorithm 5 on Master only and Algorithm 6 on every worker.
  Note that algorithms 5 and 6 are intended as a continuation of Algorithm
  4.
 \begin_inset Float algorithm
@@ -1284,15 +1284,15 @@ Ansible is an open-source automation engine that automates cloud provisioning,
  Once installed on a control node, Ansible, which is an agentless architecture,
  connects to a managed node through the default OpenSSH connection type.
  You can define a set of rules that can be executed in a specified order
- and when some conditions are met.
+ and when specific conditions are met.
  The set of tasks and rules are specified in a playbook.
- The used script was very easy to use because there is a file called 
+ We defined tasks and rules by editing a file called 
 \emph on
 hosts
 \emph default
- that can be edited.
+.
  In this file you can specify the hadoop roles of each machine (namenode,
- datanode) and which software you want to install (zookeeper, spark...).
+ datanode) and which software you want to install on it (zookeeper, spark...).
  We installed a simple cluster with Master as namenode and datanode (it
  had enough computationl power to perform both tasks) and the workers as
  datanodes.
@@ -1302,7 +1302,7 @@ hosts
 group_vars/all 
 \emph default
 that contains some useful variables.
- The java path it is not correct so you must manually edit it.
+ The java path it is not already correct so you must manually edit it.
  If you ran the provided script you just have to change the first two uncommente
 d lines into the following ones:
 \begin_inset listings
@@ -1339,7 +1339,7 @@ ansible-playbook -i hosts site.yaml
 
 \end_inset
 
-If the installation is successful, then it's time to install Pig.
+If the installation succedes, then you can install Pig.
 \end_layout
 
 \begin_layout Subsubsection
@@ -1355,8 +1355,8 @@ Apache Pig is a high-level platform for creating programs that run on Apache
  a notation which makes MapReduce programming high level, similar to that
  of SQL for RDBMSs.
  Pig was not included in the playbook so we installed it manually after
- the playbook was executed using the Cloudera 5 Repository, just type the
- following command on Master:
+ the playbook was executed, using the Cloudera 5 Repository.
+ Just type the following command on Master:
 \begin_inset listings
 inline false
 status open
@@ -1376,9 +1376,10 @@ End of the Installation
 \end_layout
 
 \begin_layout Standard
-At the end of the installation we should have an architecture that corresponds
+At the end of the installation you should have an architecture that corresponds
  to the deployment diagram shown in Figure 1.
- To launch any task on the cluster just SSH the Master and in the 
+ To launch any task on the cluster just SSH the Master and then switch to
+ 
 \emph on
 hdfs
 \emph default
@@ -1412,11 +1413,12 @@ As we have already stated before, the purpose of this work is to acquire
  worker at a time up to eight.
  The benchmark algorithm we chose is a classical matrix-multiplication algorithm.
  The algorithm multiplies the same square matrix by itself.
- In addition to scale on the dimension of the cluster we decided that would
- have been interesting also to scale on the dimension of the matrix, we
- chose a 500 rows by 500 column matrix before and a 1000 rows by 1000 column
- then.
- Note that we always used the same two matrices for every test.
+ In addition to scaling on the dimension of the cluster we decided that
+ would have been interesting also to scale on the dimension of the matrix,
+ we chose a 500 rows by 500 column matrix before and a 1000 rows by 1000
+ column then.
+ Note that we always used the same two matrices for every test, for consistency
+ reasons.
  So, to sum up, we ran the following tests:
 \end_layout
 
@@ -1470,7 +1472,7 @@ As we have already stated before, the purpose of this work is to acquire
 
 \begin_layout Standard
 In order for our results to be consistent we run each of the just mentioned
- tests 10 times.
+ test 10 times.
  Unfortunately, due to the significant amount of time required, we hadn't
  been able to run each test 30 times, as the common practice would suggest.
 \end_layout
@@ -1485,7 +1487,15 @@ We used a simple C program to generate a dense square matrix of size
 DIMxDIM
 \emph default
 .
- The output format of the matrix was foreach line 
+ This program outputs a matrix in 
+\begin_inset Quotes eld
+\end_inset
+
+row, column, value
+\begin_inset Quotes erd
+\end_inset
+
+ format: 
 \emph on
 <row 
 \backslash
@@ -1495,7 +1505,7 @@ t value>.
  
 \emph default
 The program uses OpenMP to speed up the generation of the matrix.
- To compile the source type the following command:
+ To compile the source just type the following command:
 \begin_inset listings
 lstparams "language=bash"
 inline false
@@ -1513,19 +1523,19 @@ The
 -fopenmp 
 \emph default
 flag enables the parallelism.
- Anyway if you can't use OpenMp you can compile the program without the
- specified flag.
+ If you don't want use OpenMp you can simply compile the program without
+ the just specified flag.
  Remember to change 
 \emph on
 <matrix_side_length> 
 \emph default
-with any integer value.
+with a integer value.
  After the compilation run the executable to generate the 
 \emph on
 outMatrix.txt 
 \emph default
 file, which contains the matrix.
- In our case we set DIM to 500 and then 1000.
+ In our case we set DIM to 500 at first, and then to 1000.
 \begin_inset Float algorithm
 placement h
 wide false
@@ -1797,12 +1807,13 @@ The test script in Pig Latin
 \end_inset
 
 Algorithm 9 is just a wrapper of Algorithm 8: It iterates 10 times (this
- is the number of our repetitions set for each test case) for each matrix
- (so once for 500 and once for 1000) and it prepares the environment by
- cleaning the hdfs, copying the test matrix and launching Algorithm 8.
- Algorithm 9 also generate a file where it stores for each line timestamp,
- test matrix , number of nodes and execution time.
- This will be helpful in log processing.
+ is the number of repetitions for each test case) for each matrix (so once
+ for 500 and once for 1000) and it prepares the environment by cleaning
+ the hdfs, copying the matrix and launching Algorithm 8.
+ Algorithm 9 also generates a file where it stores for each line the timestamp
+ of the begin, the matrix dimension, the number of nodes and total execution
+ time.
+ This will beecome helpful for the log processing.
 \begin_inset Float algorithm
 placement H
 wide false
@@ -2011,7 +2022,7 @@ Log Processing
 \end_layout
 
 \begin_layout Standard
-Algorithm 10 has been used to mine yarn logs of each node.
+Algorithm 10 has been used to mine the yarn logs of each node.
  Raw logs can be found at the link cited at Section 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -2026,25 +2037,25 @@ $log_times
 \emph default
 where it stores app_id of a job, the name of the node and the execution
  time.
- The script mines 
+ The script mines the 
 \emph on
 app_id
 \emph default
-s from the logs obtained by pig executions contained inf the directory 
+s from the logs obtained by the pig executions contained inf the directory
+ 
 \emph on
 $pig_log_dir.
  
 \emph default
-For every found 
+For every 
 \emph on
 app_id 
 \emph default
-it searches for occurrence in every yarn log.
+found it searches for occurrenceof it in every yarn log.
  A yarn log is uniquely associated to a node.
- By getting the timestamp of the first and the last occurence it is easy
- to compute the execution time.
- Check the code and the comments to understand better how the Algorithm
- 10 works.
+ From the timestamp of the first and the last occurence you can easily compute
+ the execution time.
+ Check the code and the comments to understand better how Algorithm 10 works.
 \end_layout
 
 \begin_layout Paragraph
@@ -2280,14 +2291,14 @@ pig_matrix-mul_coarse.csv contains extremely aggregated data.
  There is one row for each group of test (i.e.
  one row for each cluster dimension for each matrix dimension).
  In addition to the mean total time we have included also some statistics
- such as median and standard deviation.
+ such as the median and the standard deviation.
 \end_layout
 
 \begin_layout Description
 pig_matrix-mul_fine.csv contains aggregated data for each test.
  For each of test 120 we ran we have reported some statistics for each one
  of the two jobs that compose each test.
- Check Appendix B for header interpretation.
+ Check Appendix B for instructions on how to interpret the header.
 \end_layout
 
 \begin_layout Description
@@ -2388,8 +2399,8 @@ well overlapped
 \begin_inset Quotes erd
 \end_inset
 
- for the 1000x1000 matrix.
- This means that the time to end one job is equal on each node.
+ for the 1000x1000 matrix, which means that the time required by each job
+ is equal on each node.
  The graph of the tests with the matrix 500x500 is more confusing: this
  means that on each machine the execution time per job is more variable.
  
@@ -2494,25 +2505,18 @@ As one would expect, by increasing the number of working nodes the time
  at that time.
  We would also suggest to continue adding more machines, beyond eight, and
  see how the scaling behaves.
- Regarding PoliCloud usability, it is very easy to use, but some bugs on
- the infrastrucutre slowed down the work: [
-\begin_inset Quotes eld
-\end_inset
-
-OLTRE AL BUG DI SSH PRIMA CITATO
-\begin_inset Quotes erd
-\end_inset
-
- NON SO COME SI SCRIVE IN INGLESE], the action of deleting instances generates
- error sometimes.
- After this event, the inquired instance can only be deleted by the system
- administrator.
- The main problems that we had to face during installation were the correct
- sizing of the storage space of the instances w.r.t the size of the test matrces.
- We had a cap of maximum storage memory that we needed to part.
- Too small matrix would not be significant, but too big would have run out
- of memory the partition of the nodes making the nodes unhealthy or filling
- the swap, blocking the entire test case.
+ We found PoliCloud very easy to use, although some bugs on the infrastrucutre
+ slowed down our work: in addition to the bug on the ssh key mentioned above,
+ we had some problems also with the elimination of some instances that didn't
+ seem to be willing to be eliminated.
+ We had to ask to the system adminitsrator to delete them.
+ The main issues we faced during the test phase were related to the correct
+ sizing of the storage space of the instances w.r.t the size of the test matrices
+ beacuse when the join is computed a lot of memory space is needed.
+ A matrix too smal wouldn't have been significant for the test, but a too
+ big one would have filled the partition of the nodes making the them to
+ become unhealthy or filling the swap, resulting in an arrest of the entire
+ test case.
  
 \emph on
 sergevs
@@ -2531,12 +2535,11 @@ Each figure shows the average execution time on a node w.r.t.
  the dimension of the cluster.
  The times for each of the two jobs that compose a test are represented
  separately in the plot.
- Plots realted to worker3 and successive start from 4 workers up to 8 because
- Worker3 is used only when the dimension of the cluster is greater than
- 3.
- A similar rule is applied also for successive workers.
- The graphs for Worker7 are not significant because they're just a bunch
- of points, so they've been replaced by Table 1.
+ Plots realted to worker3 start from 4 workers up to 8 because Worker3 is
+ used only when the dimension of the cluster is greater than 3.
+ The same holds also for the other workers up to Worker8.
+ The graphs for Worker7 are not significant because they basically consist
+ of two points, so they've been replaced by Table 1.
 \begin_inset Float figure
 placement H
 wide false
@@ -3170,12 +3173,12 @@ The
 \emph on
 doc
 \emph default
- folder contains this document and the images required from it.
+ folder contains this document and the images in it.
  The 
 \emph on
 log
 \emph default
- folder contains the obtained logs in 
+ folder contains the logs in 
 \emph on
 csv 
 \emph default
@@ -3184,9 +3187,8 @@ format.
 \emph on
 src 
 \emph default
-folder contains all the scripts used in the project.
- These scripts are well described in this document and they're organized
- in subfolders.
+folder contains all the scripts used in this project.
+ Scripts are well described in this document and they're organized in subfolders.
 \end_layout
 
 \end_body
